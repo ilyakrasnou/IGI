@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 
 namespace FreeRock.Models
 {
-    public class Artist
+    public class Comment
     {
         public int ID { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string PhotoPath { get; set; }
+        public User Author { get; }
+        public DateTime Date { get; }
+        public string Text { get; set; }
     }
 }

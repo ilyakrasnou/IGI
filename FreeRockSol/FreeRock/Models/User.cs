@@ -5,12 +5,11 @@ using System.Threading.Tasks;
 
 namespace FreeRock.Models
 {
-    public class Song
+    public class User
     {
         public int ID { get; set; }
-        public string Name { get; set; }
-        public int AlbumId { get; set; }
-        public string YouTubeUrl { get; set; }
+        public string Password { get; set; }
+        public bool HasPrivilegy { get; set; }
         public List<Comment> Comments { get; set; }
     }
 }

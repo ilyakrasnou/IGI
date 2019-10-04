@@ -12,5 +12,20 @@ namespace FreeRock.Controllers
         {
             return View();
         }
+
+        public string Artist(int artistID)
+        {
+            return "No artist with such ID"; 
+        }
+
+        public string Album(int albumID)
+        {
+            return "No album with such ID";
+        }
+
+        public string Song(int songID)
+        {
+            return "No song with such ID";
+        }
     }
 }

@@ -10,22 +10,22 @@ using FreeRock.Models;
 
 namespace FreeRock.Controllers
 {
-    public class UsersController : Controller
+    public class GenresController : Controller
     {
         private readonly CatalogContext _context;
 
-        public UsersController(CatalogContext context)
+        public GenresController(CatalogContext context)
         {
             _context = context;
         }
 
-        // GET: Users
+        // GET: Genres
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Users.ToListAsync());
+            return View(await _context.Genres.ToListAsync());
         }
 
-        // GET: Users/Details/5
+        // GET: Genres/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -33,39 +33,39 @@ namespace FreeRock.Controllers
                 return NotFound();
             }
 
-            var user = await _context.Users
+            var genre = await _context.Genres
                 .FirstOrDefaultAsync(m => m.ID == id);
-            if (user == null)
+            if (genre == null)
             {
                 return NotFound();
             }
 
-            return View(user);
+            return View(genre);
         }
 
-        // GET: Users/Create
+        // GET: Genres/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Users/Create
+        // POST: Genres/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Password,HasPrivilegy")] User user)
+        public async Task<IActionResult> Create([Bind("ID,Name")] Genre genre)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(user);
+                _context.Add(genre);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(user);
+            return View(genre);
         }
 
-        // GET: Users/Edit/5
+        // GET: Genres/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -73,22 +73,22 @@ namespace FreeRock.Controllers
                 return NotFound();
             }
 
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
+            var genre = await _context.Genres.FindAsync(id);
+            if (genre == null)
             {
                 return NotFound();
             }
-            return View(user);
+            return View(genre);
         }
 
-        // POST: Users/Edit/5
+        // POST: Genres/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Password,HasPrivilegy")] User user)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,Name")] Genre genre)
         {
-            if (id != user.ID)
+            if (id != genre.ID)
             {
                 return NotFound();
             }
@@ -97,12 +97,12 @@ namespace FreeRock.Controllers
             {
                 try
                 {
-                    _context.Update(user);
+                    _context.Update(genre);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!UserExists(user.ID))
+                    if (!GenreExists(genre.ID))
                     {
                         return NotFound();
                     }
@@ -113,10 +113,10 @@ namespace FreeRock.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(user);
+            return View(genre);
         }
 
-        // GET: Users/Delete/5
+        // GET: Genres/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -124,30 +124,30 @@ namespace FreeRock.Controllers
                 return NotFound();
             }
 
-            var user = await _context.Users
+            var genre = await _context.Genres
                 .FirstOrDefaultAsync(m => m.ID == id);
-            if (user == null)
+            if (genre == null)
             {
                 return NotFound();
             }
 
-            return View(user);
+            return View(genre);
         }
 
-        // POST: Users/Delete/5
+        // POST: Genres/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var user = await _context.Users.FindAsync(id);
-            _context.Users.Remove(user);
+            var genre = await _context.Genres.FindAsync(id);
+            _context.Genres.Remove(genre);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool UserExists(int id)
+        private bool GenreExists(int id)
         {
-            return _context.Users.Any(e => e.ID == id);
+            return _context.Genres.Any(e => e.ID == id);
         }
     }
 }

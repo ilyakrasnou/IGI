@@ -54,7 +54,7 @@ namespace FreeRock.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Name,AlbumId,YouTubeUrl")] Song song)
+        public async Task<IActionResult> Create([Bind("ID,Name,YouTubeUrl")] Song song)
         {
             if (ModelState.IsValid)
             {
@@ -86,7 +86,7 @@ namespace FreeRock.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,AlbumId,YouTubeUrl")] Song song)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,YouTubeUrl")] Song song)
         {
             if (id != song.ID)
             {

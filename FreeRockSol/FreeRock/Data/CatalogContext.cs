@@ -11,23 +11,70 @@ namespace FreeRock.Data
     {
         public CatalogContext(DbContextOptions<CatalogContext> options) : base(options)
         {
+            Database.Migrate();
         }
 
         public DbSet<Album> Albums { get; set; }
         public DbSet<Artist> Artists { get; set; }
         public DbSet<Song> Songs { get; set; }
         public DbSet<User> Users { get; set; }
-        public DbSet<Comment> Comments { get; set; }
         public DbSet<Genre> Genres { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Album>().ToTable("Album");
-            modelBuilder.Entity<Artist>().ToTable("Artist");
-            modelBuilder.Entity<Song>().ToTable("Song");
-            modelBuilder.Entity<User>().ToTable("User");
-            modelBuilder.Entity<Comment>().ToTable("Comment");
-            modelBuilder.Entity<Genre>().ToTable("Genre");
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<GenreAlbum>()
+                .HasKey(s => new { s.GenreID, s.AlbumID });
+            modelBuilder.Entity<GenreAlbum>()
+                .HasOne(x => x.Album)
+                .WithMany(x => x.AlbumGenres);
+            modelBuilder.Entity<GenreAlbum>()
+                .HasOne(x => x.Genre)
+                .WithMany(x => x.GenreAlbums);
+
+            // Relations with Albums
+            modelBuilder.Entity<Album>()
+                .HasMany(x => x.Songs)
+                .WithOne(x => x.Album);
+            modelBuilder.Entity<Album>()
+                .HasMany(a => a.Comments)
+                .WithOne(x => x.CommentableObj);
+            modelBuilder.Entity<Album>()
+                .HasMany(a => a.Likes)
+                .WithOne(x => x.LikeableObj);
+            modelBuilder.Entity<Album>()
+                .HasIndex(x => x.Title);
+
+            // Relations with Artist
+            modelBuilder.Entity<Artist>()
+                .HasMany(x => x.Albums)
+                .WithOne(x => x.Artist);
+            modelBuilder.Entity<Artist>()
+                .HasMany(x => x.Songs)
+                .WithOne(x => x.Artist);
+            modelBuilder.Entity<Artist>()
+                .HasMany(a => a.Comments)
+                .WithOne(x => x.CommentableObj);
+            modelBuilder.Entity<Artist>()
+                .HasMany(a => a.Likes)
+                .WithOne(x => x.LikeableObj);
+            modelBuilder.Entity<Artist>()
+                .HasIndex(x => x.Name);
+
+            // Relations with Song
+            modelBuilder.Entity<Song>()
+                .HasMany(x => x.Comments)
+                .WithOne(x => x.CommentableObj);
+            modelBuilder.Entity<Song>()
+                .HasMany(x => x.Likes)
+                .WithOne(x => x.LikeableObj);
+            modelBuilder.Entity<Song>()
+                .HasIndex(x => x.Name);
+
+            modelBuilder.Entity<User>()
+                .HasIndex(x => x.Login)
+                .IsUnique();
         }
     }
 }

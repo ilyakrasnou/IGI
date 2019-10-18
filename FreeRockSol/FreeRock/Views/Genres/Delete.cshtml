@@ -1,4 +1,4 @@
-﻿@model FreeRock.Models.User
+﻿@model FreeRock.Models.Genre
 
 @{
     ViewData["Title"] = "Delete";
@@ -8,20 +8,14 @@
 
 <h3>Are you sure you want to delete this?</h3>
 <div>
-    <h4>User</h4>
+    <h4>Genre</h4>
     <hr />
     <dl class="dl-horizontal">
         <dt>
-            @Html.DisplayNameFor(model => model.Password)
+            @Html.DisplayNameFor(model => model.Name)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Password)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.HasPrivilegy)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.HasPrivilegy)
+            @Html.DisplayFor(model => model.Name)
         </dd>
     </dl>
     

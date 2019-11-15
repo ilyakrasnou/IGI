@@ -12,15 +12,20 @@ namespace FreeRock.Models
 {
     public class Album
     {
-        public int ID { get; set; }
+        public int AlbumID { get; set; }
         [Required]
         public string Title { get; set; }
-        public string CoverPath { get; set; }
+
+        [NotMapped]
+        public string CoverPath => System.IO.File.Exists($"wwwroot/covers/{AlbumID}.jpg") ?
+            $"/covers/{AlbumID}.jpg" : $"/covers/default.jpg";
+
         private int? _realeseDate;
         public int? ReleaseDate
         {
             get => _realeseDate;
-            set {
+            set
+            {
                 if (value == null || value < System.DateTime.UtcNow.Year + 10)
                     _realeseDate = value;
                 else
@@ -29,7 +34,10 @@ namespace FreeRock.Models
         }
         [Required]
         public bool IsVerified { get; set; }
+
+        public int ArtistID { get; set; }
         public virtual Artist Artist { get; set; }
+
         public virtual IList<Song> Songs { get; set; }
         public virtual ICollection<GenreAlbum> AlbumGenres { get; set; }
         public virtual ICollection<Comment<Album>> Comments { get; set; }

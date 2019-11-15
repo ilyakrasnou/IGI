@@ -9,10 +9,13 @@ namespace FreeRock.Models
 {
     public class Song
     {
-        public int ID { get; set; }
+        public int SongID { get; set; }
         [Required]
         public string Name { get; set; }
+
+        public int AlbumID { get; set; }
         public virtual Album Album { get; set; }
+
         [Required]
         public byte Number { get; set; }
         [DataType(DataType.Url)]

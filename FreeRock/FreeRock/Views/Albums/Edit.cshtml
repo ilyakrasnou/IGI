@@ -1,4 +1,4 @@
-﻿@model FreeRock.Models.Album
+﻿@model FreeRock.ViewModels.AlbumViewModel
 
 @{
     ViewData["Title"] = "Edit";
@@ -10,32 +10,62 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Edit">
+        <form asp-action="Edit" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="ID" />
+            <input type="hidden" asp-for="Album.AlbumID" />
+            
             <div class="form-group">
-                <label asp-for="Title" class="control-label"></label>
-                <input asp-for="Title" class="form-control" />
-                <span asp-validation-for="Title" class="text-danger"></span>
+                <label asp-for="Album.Title" class="control-label"></label>
+                <input asp-for="Album.Title" class="form-control" />
+                <span asp-validation-for="Album.Title" class="text-danger"></span>
+            </div>
+
+
+            <div class="form-group row">
+                <div class="col-6">
+                    <cover-image source="@Model.Album.CoverPath" alt-name="@Model.Album.Title"/>
+                    <!--
+                    <img src="@Model.Album.CoverPath"
+                         class="align-self-start mr-3 rounded-circle"
+                         alt="@Model.Album.Title"
+                         onerror="this.onerror=null;this.src='/covers/default.jpg';"
+                         height="128" width="128">
+                        -->
+                </div>
+                <div class="col-6 input-group">
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="file" accept=".jpg" asp-for="CoverImage">
+                        <label class="custom-file-label" asp-for="CoverImage">Upload new picture</label>
+                        <span asp-validation-for="CoverImage" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
             <div class="form-group">
-                <label asp-for="CoverPath" class="control-label"></label>
-                <input asp-for="CoverPath" class="form-control" />
-                <span asp-validation-for="CoverPath" class="text-danger"></span>
+                <label asp-for="Album.Artist" class="control-label"></label>
+                <select asp-for="Album.ArtistID" class="form-control" asp-items="ViewBag.ArtistID">
+                    <option value="">-- Select Artist --</option>
+                </select>
+                <span asp-validation-for="Album.ArtistID" class="text-danger" />
+            </div>
+            <div>
+                @await Component.InvokeAsync("ArtistMin", Model.Album.ArtistID)
             </div>
             <div class="form-group">
-                <label asp-for="ReleaseDate" class="control-label"></label>
-                <input asp-for="ReleaseDate" class="form-control" />
-                <span asp-validation-for="ReleaseDate" class="text-danger"></span>
+                <label asp-for="Album.ReleaseDate" class="control-label"></label>
+                <input asp-for="Album.ReleaseDate" class="form-control" />
+                <span asp-validation-for="Album.ReleaseDate" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" type="text" />
-                <span asp-validation-for="Description" class="text-danger"></span>
+                <label asp-for="Album.Description" class="control-label"></label>
+                <input asp-for="Album.Description" class="form-control" type="text" />
+                <span asp-validation-for="Album.Description" class="text-danger"></span>
             </div>
             <table>
                 <thead>
                     <tr>
+                        <th>
+                            
+                        </th>
                         <th>
                             @Html.DisplayNameFor(model => (new Song()).Name)
                         </th>
@@ -45,36 +75,81 @@
                         <th />
                     </tr>
                 </thead>
-                <tbody>
-                    @for (int i = 0; i < Model.Songs.Count; ++i)
+                <tbody id="tbody">
+                    @for (byte i = 0; i < Model.Album.Songs.Count; ++i)
                     {
-                        <tr>
+                        <tr id="tr-@i">
                             <td>
-                                <input type="hidden" asp-for="Songs[i].ID"/>
+                                <input type="hidden" data-val="true" name="Album.Songs[@i].SongID" value="@Model.Album.Songs[i].SongID">
                             </td>
                             <td>
-                                <input asp-for="Songs[i].Name"/>
+                                <input type="text" data-val="true" data-val-required="The Name field is required." name="Album.Songs[@i].Name" value="@Model.Album.Songs[i].Name">
                             </td>
                             <td>
-                                <input asp-for="Songs[i].YouTubeUrl"/>
+                                <input type="url" name="Album.Songs[@i].YouTubeUrl" value="@Model.Album.Songs[i].YouTubeUrl">
                             </td>
                             <td>
-                                <a asp-action="DeleteSong" asp-route-id="@i">Delete</a>
+                                <input type="button" value="Add" onclick="insertRow(@i)" />
+                            </td>
+                            <td>
+                                <input type="button" value="Delete" onclick="removeRow(@i)" />
                             </td>
                         </tr>
                     }
                 </tbody>
             </table>
             <div>
-                <label asp-for="IsVerified" class="control-label"></label>
-                <label asp-for="IsVerified" class="switch">
-                    <input asp-for="IsVerified" type="checkbox">
-                    <span asp-validation-for="IsVerified" class="slider round"></span>
+                <label asp-for="Album.IsVerified" class="control-label"></label>
+                <label asp-for="Album.IsVerified" class="switch">
+                    <input asp-for="Album.IsVerified" type="checkbox">
+                    <span asp-validation-for="Album.IsVerified" class="slider round"></span>
                 </label>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-default" />
             </div>
+            <script type="text/javascript">
+                updateIndex = () => {
+                    $('#tbody > tr').each(function (i) {
+                        $(this).attr('id', `tr-${i}`);
+                        $(this).find("input[type='hidden']").attr('name', `Album.Songs[${i}].SongID`);
+                        $(this).find("input[type='text']").attr('name', `Album.Songs[${i}].Name`);
+                        $(this).find("input[type='url']").attr('name', `Album.Songs[${i}].YouTubeUrl`);
+                        $(this).find("input[value='Add']").attr('onclick', `insertRow(${i})`);
+                        $(this).find("input[value='Delete']").attr('onclick', `removeRow(${i})`);
+                    })
+                }
+
+                insertRow = (i) => {
+                    $(`#tr-${i}`).after(
+                        `
+                         <tr>
+                             <td>
+                             </td>
+                             <td>
+                                 <input type="text" data-val="true" data-val-required="The Name field is required.">
+                             </td>
+                             <td>
+                                 <input type="url"/>
+                             </td>
+                             <td>
+                                 <input type="button" value="Add" />
+                             </td>
+                             <td>
+                                 <input type="button" value="Delete" />
+                             </td>
+                         </tr>
+                         `
+                    );
+                    updateIndex();
+                }
+
+                removeRow = (i) => {
+                    $(`#tr-${i}`).remove();
+                    updateIndex();
+                }
+
+            </script>
         </form>
     </div>
 </div>

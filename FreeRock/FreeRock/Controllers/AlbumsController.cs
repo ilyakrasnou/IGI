@@ -9,6 +9,8 @@ using FreeRock.Data;
 using FreeRock.Models;
 using Microsoft.AspNetCore.Authorization;
 using FreeRock.ViewModels;
+using System.IO;
+using Microsoft.AspNetCore.Http;
 
 namespace FreeRock.Controllers
 {
@@ -22,12 +24,19 @@ namespace FreeRock.Controllers
         }
 
         // GET: Albums
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString)
         {
+            var albums = from a in _context.Albums
+                         select a;
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                albums = albums.Where(s => s.Title.Contains(searchString));
+            }
+
             if (User.IsInRole("admin"))
-                return View(await _context.Albums.ToListAsync());
+                return View(await albums.ToListAsync());
             else
-                return View(await _context.Albums.Where(x => x.IsVerified).ToListAsync());
+                return View(await albums.Where(x => x.IsVerified).ToListAsync());
         }
 
         // GET: Albums/Details/5
@@ -39,7 +48,7 @@ namespace FreeRock.Controllers
             }
 
             var album = await _context.Albums
-                .FirstOrDefaultAsync(m => m.ID == id);
+                .FirstOrDefaultAsync(m => m.AlbumID == id);
             if (album == null)
             {
                 return NotFound();
@@ -51,42 +60,42 @@ namespace FreeRock.Controllers
         // GET: Albums/Create
         public IActionResult Create()
         {
+            PopulateArtistsDropDownList();
             //return View(_context.Albums.First());
-            return View(new Album { Songs = new List<Song> { new Song()} });
+            return View(new AlbumViewModel());
         }
 
-        [HttpGet]
+        /*[HttpGet]
         public IList<Song> GetSongs()
         {
             var x = _context.Albums.First().Songs.Select(s => new Song{ Name = s.Name, YouTubeUrl = s.YouTubeUrl }).ToList();
             return x;
-        }
+        }*/
 
         // POST: Albums/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Album album)
+        public async Task<IActionResult> Create(AlbumViewModel albumvm)
         {
+            TryValidateModel(albumvm);
             if (ModelState.IsValid)
             {
-                //_context.Add(album);
-                //await _context.SaveChangesAsync();
-                //return RedirectToAction(nameof(Index));
+                _context.Add(albumvm.Album);
+                await _context.SaveChangesAsync();
+                if (albumvm.CoverImage != null)
+                {
+                    using (var stream = new FileStream($"wwwroot/covers/{albumvm.Album.AlbumID}.jpg", FileMode.OpenOrCreate))
+                    {
+                        await albumvm.CoverImage.CopyToAsync(stream);
+                    }
+                }
+                return RedirectToAction(nameof(Index));
             }
-            return View(album);
+            PopulateArtistsDropDownList(albumvm.Album.ArtistID);
+            return View(albumvm);
         }
-
-        /*public Task<IActionResult> AddSong(AlbumViewModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                model.Album.Songs.Add(model.NewSong);
-                model.NewSong = new Song();
-            }
-            return Create(model, true);
-        }*/
 
         // GET: Albums/Edit/5
         [Authorize(Roles ="admin")]
@@ -102,7 +111,9 @@ namespace FreeRock.Controllers
             {
                 return NotFound();
             }
-            return View(album);
+            album.Songs = album.Songs.OrderBy(s => s.Number).ToList();
+            PopulateArtistsDropDownList(album.ArtistID);
+            return View(new AlbumViewModel(album));
         }
 
         // POST: Albums/Edit/5
@@ -111,9 +122,9 @@ namespace FreeRock.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles ="admin")]
-        public async Task<IActionResult> Edit(int id, Album album)
+        public async Task<IActionResult> Edit(int id, AlbumViewModel albumvm)
         {
-            if (id != album.ID)
+            if (id != albumvm.Album.AlbumID)
             {
                 return NotFound();
             }
@@ -121,14 +132,43 @@ namespace FreeRock.Controllers
             {
                 try
                 {
-                    for (byte i = 0; i < album.Songs.Count; ++i)
-                        album.Songs[i].Number = i;
-                    _context.Update(album);
+                    HashSet<int> newID = new HashSet<int>();
+                    IList<Song> newSongs = new List<Song>();
+                    for (byte i = 0; i < albumvm.Album.Songs.Count; ++i)
+                    {
+                        var s = albumvm.Album.Songs[i];
+                        s.Number = i;
+                        // check if song was in album and we need to update it
+                        if (s.SongID != 0)
+                        {
+                            newID.Add(s.SongID);
+                            _context.Update(s);
+                        }
+                        // this is new song
+                        else
+                        {
+                            s.Album = albumvm.Album;
+                            newSongs.Add(s);
+                        }
+                    }
+                    _context.Update(albumvm.Album);
+                    // remove old songs that are not in album after editing 
+                    {
+                        IEnumerable<Song> oldSongs = _context.Songs.Where(s => s.Album == albumvm.Album);
+                        foreach (var s in oldSongs)
+                        {
+                            if (!newID.Contains(s.SongID))
+                                _context.Remove(s);
+                        }
+                    }
+                    // add new songs 
+                    foreach (var s in newSongs)
+                       _context.Add(s);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!AlbumExists(album.ID))
+                    if (!AlbumExists(albumvm.Album.AlbumID))
                     {
                         return NotFound();
                     }
@@ -137,9 +177,19 @@ namespace FreeRock.Controllers
                         throw;
                     }
                 }
+
+                if (albumvm.CoverImage != null)
+                {
+                    using (var stream = new FileStream($"wwwroot/covers/{albumvm.Album.AlbumID}.jpg", FileMode.OpenOrCreate))
+                    {
+                        await albumvm.CoverImage.CopyToAsync(stream);
+                    }
+                }
+
                 return RedirectToAction(nameof(Index));
             }
-            return View(album);
+            PopulateArtistsDropDownList(albumvm.Album.ArtistID);
+            return View(albumvm);
         }
 
         // GET: Albums/Delete/5
@@ -152,7 +202,7 @@ namespace FreeRock.Controllers
             }
 
             var album = await _context.Albums
-                .FirstOrDefaultAsync(m => m.ID == id);
+                .FirstOrDefaultAsync(m => m.AlbumID == id);
             if (album == null)
             {
                 return NotFound();
@@ -164,17 +214,42 @@ namespace FreeRock.Controllers
         // POST: Albums/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles ="admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var album = await _context.Albums.FindAsync(id);
             _context.Albums.Remove(album);
             await _context.SaveChangesAsync();
+            if (System.IO.File.Exists($"wwwroot/covers/{id}.jpg"))
+            {
+                System.IO.File.Delete($"wwwroot/covers/{id}.jpg");
+            }
             return RedirectToAction(nameof(Index));
         }
 
         private bool AlbumExists(int id)
         {
-            return _context.Albums.Any(e => e.ID == id);
+            return _context.Albums.Any(e => e.AlbumID == id);
         }
+
+        private void PopulateArtistsDropDownList(object selectedArtist = null)
+        {
+            var artistsQuery = _context.Artists.OrderBy(a => a.Name);
+            ViewBag.ArtistID = new SelectList(artistsQuery.AsNoTracking(), "ArtistID", "Name", selectedArtist);
+        }
+
+        /*[AcceptVerbs("Get", "Post")]
+        public IActionResult VerifyCoverImage(IFormFile file)
+        {
+            if (file.Length > 268435456)
+            {
+                return Json("Too large file.");
+            }
+            if (file.ContentType != "image/jpg")
+            {
+                return Json("Not an image.");
+            }
+            return Json(true);
+        }*/
     }
 }

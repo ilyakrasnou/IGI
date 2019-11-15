@@ -38,7 +38,7 @@ namespace FreeRock.Controllers
             }
 
             var song = await _context.Songs
-                .FirstOrDefaultAsync(m => m.ID == id);
+                .FirstOrDefaultAsync(m => m.SongID == id);
             if (song == null)
             {
                 return NotFound();
@@ -69,22 +69,6 @@ namespace FreeRock.Controllers
             return View(song);
         }
 
-        public IActionResult CreateInAlbum(Album album)
-        {
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateInAlbum(Album album, [Bind("ID,Name,YouTubeUrl")] Song song)
-        {
-            if (ModelState.IsValid)
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            return View(song);
-        }
-
         // GET: Songs/Edit/5
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Edit(int? id)
@@ -110,7 +94,7 @@ namespace FreeRock.Controllers
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Edit(int id, [Bind("ID,Name,YouTubeUrl")] Song song)
         {
-            if (id != song.ID)
+            if (id != song.SongID)
             {
                 return NotFound();
             }
@@ -124,7 +108,7 @@ namespace FreeRock.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!SongExists(song.ID))
+                    if (!SongExists(song.SongID))
                     {
                         return NotFound();
                     }
@@ -148,7 +132,7 @@ namespace FreeRock.Controllers
             }
 
             var song = await _context.Songs
-                .FirstOrDefaultAsync(m => m.ID == id);
+                .FirstOrDefaultAsync(m => m.SongID == id);
             if (song == null)
             {
                 return NotFound();
@@ -171,7 +155,7 @@ namespace FreeRock.Controllers
 
         private bool SongExists(int id)
         {
-            return _context.Songs.Any(e => e.ID == id);
+            return _context.Songs.Any(e => e.SongID == id);
         }
     }
 }

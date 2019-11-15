@@ -1,0 +1,11 @@
+﻿@model IEnumerable<FreeRock.Models.Album>
+
+<h3>Recently related albums</h3>
+<ul>
+    @foreach (var album in Model)
+    {
+        <li>@album.Title</li>
+    }
+</ul>
+
+

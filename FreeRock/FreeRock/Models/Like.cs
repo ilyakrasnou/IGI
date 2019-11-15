@@ -9,7 +9,9 @@ namespace FreeRock.Models
     public class Like<T>
     {
         public int ID { get; set; }
+        
         public virtual User User { get; set; }
+
         public virtual T LikeableObj { get; set; }
         public byte Mark { get; set; }
     }

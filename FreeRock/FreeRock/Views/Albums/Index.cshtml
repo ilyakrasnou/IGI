@@ -5,10 +5,18 @@
 }
 
 <h2>Index</h2>
-
+<div>
+    @await Component.InvokeAsync("NewAlbums")
+</div>
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+<form asp-action="Index" method="get">
+    <p>
+        Title: <input type="text" name="SearchString">
+        <input type="submit" value="Filter" />
+    </p>
+</form>
 <table class="table">
     <thead>
         <tr>
@@ -45,15 +53,15 @@
             @if (User.IsInRole("admin"))
             {
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
+                    <a asp-action="Edit" asp-route-id="@item.AlbumID">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.AlbumID">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.AlbumID">Delete</a>
                 </td>
             }
             else
             {
                 <td>
-                    <a asp-action="Details" asp-route-id="@item.ID">Details</a>
+                    <a asp-action="Details" asp-route-id="@item.AlbumID">Details</a>
                 </td>
             }
         </tr>

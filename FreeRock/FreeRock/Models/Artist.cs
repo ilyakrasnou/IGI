@@ -10,7 +10,7 @@ namespace FreeRock.Models
 {
     public class Artist
     {
-        public int ID { get; set; }
+        public int ArtistID { get; set; }
         [Required]
         public string Name { get; set; }
         [DataType(DataType.MultilineText)]

@@ -8,7 +8,7 @@ namespace FreeRock.Models
 {
     public class Genre
     {
-        public int ID { get; set; }
+        public int GenreID { get; set; }
         [Required]
         public string Name { get; set; }
 

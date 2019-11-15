@@ -10,8 +10,9 @@ namespace FreeRock.Models
     public class Comment<T>
     {
         public int ID { get; set; }
-
+        
         public virtual User Author { get; set; }
+
         public DateTime Date { get; set; }
         [DataType(DataType.MultilineText)]
         public string Text { get; set; }

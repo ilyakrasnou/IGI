@@ -1,4 +1,4 @@
-﻿@model FreeRock.Models.Album
+﻿@model FreeRock.ViewModels.AlbumViewModel
 
 @{
     ViewData["Title"] = "CreateAlbum";
@@ -13,29 +13,54 @@
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="Title" class="control-label"></label>
-                <input asp-for="Title" class="form-control" />
-                <span asp-validation-for=" Title" class="text-danger"></span>
+                <label asp-for="Album.Title" class="control-label"></label>
+                <input asp-for="Album.Title" class="form-control" />
+                <span asp-validation-for="Album.Title" class="text-danger"></span>
+            </div>
+            <div class="form-group row">
+                <div class="col-6">
+                    <img src="@Model.Album.CoverPath"
+                         alt="@Model.Album.Title"
+                         onerror="this.onerror=null;this.src='/covers/default.jpg';"
+                         height="128" width="128">
+                </div>
+                <div class="col-6 input-group">
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="file" accept=".jpg" asp-for="CoverImage">
+                        <label class="custom-file-label" asp-for="CoverImage">Upload new picture</label>
+                        <span style="color: tomato" asp-validation-for="CoverImage"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!--
+            <div class="form-group">
+                <label asp-for="Album.CoverPath" class="control-label"></label>
+                <input asp-for="Album.CoverPath" class="form-control" />
+                <span asp-validation-for="Album.CoverPath" class="text-danger"></span>
+            </div>
+            -->
+            <!--<div class="form-group">
+        <label asp-for="Artist.Name" class="control-label"></label>
+        <input name="Artist.Name" class="form-control" />
+        <span asp-validation-for="ReleaseDate" class="text-danger"></span>
+    </div>-->
+            <div class="form-group">
+                <label asp-for="Album.Artist" class="control-label"></label>
+                <select asp-for="Album.ArtistID" class="form-control" asp-items="ViewBag.ArtistID">
+                    <option value="">-- Select Artist --</option>
+                </select>
+                <span asp-validation-for="Album.ArtistID" class="text-danger" />
             </div>
             <div class="form-group">
-                <label asp-for="CoverPath" class="control-label"></label>
-                <input asp-for="CoverPath" class="form-control" />
-                <span asp-validation-for="CoverPath" class="text-danger"></span>
+                <label asp-for="Album.ReleaseDate" class="control-label"></label>
+                <input asp-for="Album.ReleaseDate" class="form-control" />
+                <span asp-validation-for="Album.ReleaseDate" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Artist.Name" class="control-label"></label>
-                <input name="Artist.Name" class="form-control" />
-                <span asp-validation-for="ReleaseDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ReleaseDate" class="control-label"></label>
-                <input asp-for="ReleaseDate" class="form-control" />
-                <span asp-validation-for="ReleaseDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
+                <label asp-for="Album.Description" class="control-label"></label>
+                <input asp-for="Album.Description" class="form-control" />
+                <span asp-validation-for="Album.Description" class="text-danger"></span>
             </div>
             <table id="songTable">
                 <thead>
@@ -52,10 +77,10 @@
                 <tbody id="tbody">
                     <tr id="tr-0">
                         <td>
-                            <input type="text" name="Songs[0].Name" value="@Model.Songs[0].Name" />
+                            <input type="text" name="Songs[0].Name" value="@Model.Album.Songs[0].Name" />
                         </td>
                         <td>
-                            <input type="url" name="Songs[0].YouTubeUrl" value="@Model.Songs[0].YouTubeUrl" />
+                            <input type="url" name="Songs[0].YouTubeUrl" value="@Model.Album.Songs[0].YouTubeUrl" />
                         </td>
                         <td>
                             <input type="button" value="Add" onclick="insertRow(0)" />
@@ -64,14 +89,14 @@
                             <input type="button" value="Delete" onclick="removeRow(0)" />
                         </td>
                     </tr>
-                    @for (byte i = 1; i < Model.Songs.Count; ++i)
+                    @for (byte i = 1; i < Model.Album.Songs.Count; ++i)
                     {
                         <tr id="tr-@i">
                             <td>
-                                <input type="text" name="Songs[@i].Name" value="@Model.Songs[i].Name" />
+                                <input type="text" data-val="true" data-val-required="The Name field is required." name="Album.Songs[@i].Name" value="@Model.Album.Songs[i].Name">
                             </td>
                             <td>
-                                <input type="url" name="Songs[@i].YouTubeUrl" value="@Model.Songs[i].YouTubeUrl" />
+                                <input type="url" name="Album.Songs[@i].YouTubeUrl" value="@Model.Album.Songs[i].YouTubeUrl">
                             </td>
                             <td>
                                 <input type="button" value="Add" onclick="insertRow(@i)" />
@@ -90,8 +115,8 @@
                 updateIndex = () => {
                     $('#tbody > tr').each(function (i) {
                         $(this).attr('id', `tr-${i}`);
-                        $(this).find("input[type='text']").attr('name', `Songs[${i}].Name`);
-                        $(this).find("input[type='url']").attr('name', `Songs[${i}].YouTubeUrl`);
+                        $(this).find("input[type='text']").attr('name', `Album.Songs[${i}].Name`);
+                        $(this).find("input[type='url']").attr('name', `Album.Songs[${i}].YouTubeUrl`);
                         $(this).find("input[value='Add']").attr('onclick', `insertRow(${i})`);
                         $(this).find("input[value='Delete']").attr('onclick', `removeRow(${i})`);
                     })
@@ -100,21 +125,21 @@
                 insertRow = (i) => {
                     $(`#tr-${i}`).after(
                         `
-                        <tr>
-                            <td>
-                                <input type="text"/>
-                            </td>
-                            <td>
-                                <input type="url"/>
-                            </td>
-                            <td>
-                                <input type="button" value="Add" />
-                            </td>
-                            <td>
-                                <input type="button" value="Delete" />
-                            </td>
-                        </tr>
-                        `
+                                    <tr>
+                                        <td>
+                                            <input type="text" data-val="true" data-val-required="The Name field is required.">
+                                        </td>
+                                        <td>
+                                            <input type="url"/>
+                                        </td>
+                                        <td>
+                                            <input type="button" value="Add" />
+                                        </td>
+                                        <td>
+                                            <input type="button" value="Delete" />
+                                        </td>
+                                    </tr>
+                                    `
                     );
                     updateIndex();
                 }

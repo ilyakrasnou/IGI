@@ -18,23 +18,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Migrations\20191022091218_MyMigr.cs" />
-    <Compile Remove="Migrations\20191022091218_MyMigr.Designer.cs" />
-    <Compile Remove="Migrations\20191023090538_mymigr.cs" />
-    <Compile Remove="Migrations\20191023090538_mymigr.Designer.cs" />
-    <Compile Remove="Migrations\20191023091111_mymigr.cs" />
-    <Compile Remove="Migrations\20191023091111_mymigr.Designer.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="2.1.11" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.9" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Migrations\" />
   </ItemGroup>
 
 </Project>

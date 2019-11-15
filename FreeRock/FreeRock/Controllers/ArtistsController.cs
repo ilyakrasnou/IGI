@@ -38,7 +38,7 @@ namespace FreeRock.Controllers
             }
 
             var artist = await _context.Artists
-                .FirstOrDefaultAsync(m => m.ID == id);
+                .FirstOrDefaultAsync(m => m.ArtistID == id);
             if (artist == null)
             {
                 return NotFound();
@@ -70,6 +70,7 @@ namespace FreeRock.Controllers
         }
 
         // GET: Artists/Edit/5
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -93,7 +94,7 @@ namespace FreeRock.Controllers
         [Authorize(Roles ="admin")]
         public async Task<IActionResult> Edit(int id, [Bind("ID,Name,Description,PhotoPath")] Artist artist)
         {
-            if (id != artist.ID)
+            if (id != artist.ArtistID)
             {
                 return NotFound();
             }
@@ -107,7 +108,7 @@ namespace FreeRock.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ArtistExists(artist.ID))
+                    if (!ArtistExists(artist.ArtistID))
                     {
                         return NotFound();
                     }
@@ -131,7 +132,7 @@ namespace FreeRock.Controllers
             }
 
             var artist = await _context.Artists
-                .FirstOrDefaultAsync(m => m.ID == id);
+                .FirstOrDefaultAsync(m => m.ArtistID == id);
             if (artist == null)
             {
                 return NotFound();
@@ -154,7 +155,7 @@ namespace FreeRock.Controllers
 
         private bool ArtistExists(int id)
         {
-            return _context.Artists.Any(e => e.ID == id);
+            return _context.Artists.Any(e => e.ArtistID == id);
         }
     }
 }

@@ -8,9 +8,9 @@ using FreeRock.Data;
 
 namespace FreeRock.Models
 {
-    public class Artist
+    public class Artist: ICommentable<Artist>
     {
-        public int ArtistID { get; set; }
+        public int ID { get; set; }
         [Required]
         public string Name { get; set; }
         [DataType(DataType.MultilineText)]
@@ -19,5 +19,8 @@ namespace FreeRock.Models
         public virtual ICollection<Album> Albums { get; set; }
         public virtual ICollection<Comment<Artist>> Comments { get; set; }
         public virtual ICollection<Like<Artist>> Likes { get; set; }
+
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public DateTime CreatedDate { get; set; } = DateTime.Now;
     }
 }

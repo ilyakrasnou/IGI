@@ -19,6 +19,8 @@ namespace FreeRock.Components
         }
 
         public async Task<IViewComponentResult> InvokeAsync() =>
-            View(await _context.Albums.OrderByDescending(x => x.ReleaseDate).Take(10).ToListAsync());
+            View(await _context.Albums.Where(x => x.IsVerified).
+                                OrderByDescending(x => x.ReleaseDate).
+                                Take(10).ToListAsync());
     }
 }

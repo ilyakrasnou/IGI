@@ -34,12 +34,12 @@
             </div>
 
             <!--
-            <div class="form-group">
-                <label asp-for="Album.CoverPath" class="control-label"></label>
-                <input asp-for="Album.CoverPath" class="form-control" />
-                <span asp-validation-for="Album.CoverPath" class="text-danger"></span>
-            </div>
-            -->
+    <div class="form-group">
+        <label asp-for="Album.CoverPath" class="control-label"></label>
+        <input asp-for="Album.CoverPath" class="form-control" />
+        <span asp-validation-for="Album.CoverPath" class="text-danger"></span>
+    </div>
+    -->
             <!--<div class="form-group">
         <label asp-for="Artist.Name" class="control-label"></label>
         <input name="Artist.Name" class="form-control" />
@@ -62,94 +62,53 @@
                 <input asp-for="Album.Description" class="form-control" />
                 <span asp-validation-for="Album.Description" class="text-danger"></span>
             </div>
-            <table id="songTable">
-                <thead>
-                    <tr>
-                        <th>
-                            @Html.DisplayNameFor(model => (new Song()).Name)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => (new Song()).YouTubeUrl)
-                        </th>
-                        <th />
-                    </tr>
-                </thead>
-                <tbody id="tbody">
-                    <tr id="tr-0">
-                        <td>
-                            <input type="text" name="Songs[0].Name" value="@Model.Album.Songs[0].Name" />
-                        </td>
-                        <td>
-                            <input type="url" name="Songs[0].YouTubeUrl" value="@Model.Album.Songs[0].YouTubeUrl" />
-                        </td>
-                        <td>
-                            <input type="button" value="Add" onclick="insertRow(0)" />
-                        </td>
-                        <td>
-                            <input type="button" value="Delete" onclick="removeRow(0)" />
-                        </td>
-                    </tr>
-                    @for (byte i = 1; i < Model.Album.Songs.Count; ++i)
-                    {
-                        <tr id="tr-@i">
-                            <td>
-                                <input type="text" data-val="true" data-val-required="The Name field is required." name="Album.Songs[@i].Name" value="@Model.Album.Songs[i].Name">
-                            </td>
-                            <td>
-                                <input type="url" name="Album.Songs[@i].YouTubeUrl" value="@Model.Album.Songs[i].YouTubeUrl">
-                            </td>
-                            <td>
-                                <input type="button" value="Add" onclick="insertRow(@i)" />
-                            </td>
-                            <td>
-                                <input type="button" value="Delete" onclick="removeRow(@i)" />
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+            @await  Component.InvokeAsync("EditSongs", Model.Album)
+            <div class="container col-4">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="input-group control-group after-add-more-tags">
+                            <div class="input-group mb-2">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text"> # </div>
+                                </div>
+                                <input type="text" name="Album.ags[0].Text" class="form-control input-group-prepend" placeholder="Enter Tag Here">
+                                <div class="input-group-btn">
+                                    <button class="btn btn-success add-more-tags" type="button"><i class="fas fa-plus"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="copy-tags hide" hidden>
+                            <div class="input-group control-group mb-2 mt-2">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text"> # </div>
+                                </div>
+                                <input type="text" name="tags[].Text" class="form-control input-group-prepend" placeholder="Enter Tag Here">
+                                <div class="input-group-btn">
+                                    <button class="btn btn-danger remove-tags" type="button"><i class="fas fa-trash-alt"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <script type="text/javascript">
+                    $(document).ready(function () {
+                        counter2 = 1;
+                        $(".add-more-tags").click(function () {
+                            var html = $(".copy-tags").html().replace("[]", "[" + counter2 + "]");
+                            $(".after-add-more-tags").after(html);
+                            counter2 += 1;
+                        });
+
+                        $("body").on("click", ".remove-tags", function () {
+                            $(this).parents(".control-group").remove();
+                            counter2 -= 1;
+                        });
+                    });
+                </script>
+            </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-default" />
             </div>
-            <script type="text/javascript">
-                updateIndex = () => {
-                    $('#tbody > tr').each(function (i) {
-                        $(this).attr('id', `tr-${i}`);
-                        $(this).find("input[type='text']").attr('name', `Album.Songs[${i}].Name`);
-                        $(this).find("input[type='url']").attr('name', `Album.Songs[${i}].YouTubeUrl`);
-                        $(this).find("input[value='Add']").attr('onclick', `insertRow(${i})`);
-                        $(this).find("input[value='Delete']").attr('onclick', `removeRow(${i})`);
-                    })
-                }
-
-                insertRow = (i) => {
-                    $(`#tr-${i}`).after(
-                        `
-                                    <tr>
-                                        <td>
-                                            <input type="text" data-val="true" data-val-required="The Name field is required.">
-                                        </td>
-                                        <td>
-                                            <input type="url"/>
-                                        </td>
-                                        <td>
-                                            <input type="button" value="Add" />
-                                        </td>
-                                        <td>
-                                            <input type="button" value="Delete" />
-                                        </td>
-                                    </tr>
-                                    `
-                    );
-                    updateIndex();
-                }
-
-                removeRow = (i) => {
-                    $(`#tr-${i}`).remove();
-                    updateIndex();
-                }
-
-            </script>
         </form>
     </div>
 </div>

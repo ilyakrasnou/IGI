@@ -15,14 +15,20 @@ namespace FreeRock.Data
             if (context.Albums.Any())
                 return;
             var artists = new List<Artist> {
-                new Artist { Name = "Pink Floyd", Description = "The best prog rock band in the UK" },
+                new Artist
+                {
+                    Name = "Pink Floyd",
+                    Description = "The best prog rock band in the UK",
+                    CreatedDate = DateTime.Now
+                },
                 new Artist
                 {
                     Name = "System of a Down",
                     Comments = new List<Comment<Artist>> {
-                        new Comment<Artist>{Text="Wow!"},
-                        new Comment<Artist>{Text="Great!"}
-                    }
+                        new Comment<Artist>{Text="Wow!", Author = context.Users.First()},
+                        new Comment<Artist>{Text="Great!", Author = context.Users.First()}
+                    },
+                    CreatedDate = DateTime.Now
                 }
             };
             Album[] albums = new Album[]
@@ -37,7 +43,7 @@ namespace FreeRock.Data
                     ReleaseDate =1977,
                     Comments = new List<Comment<Album>>
                     {
-                        new Comment<Album>{Text="Fucking sheet!"}
+                        new Comment<Album>{Text="Fucking sheet!", Author = context.Users.First()}
                     }
                 },
                 new Album{

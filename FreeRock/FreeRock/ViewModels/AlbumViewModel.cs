@@ -12,19 +12,22 @@ namespace FreeRock.ViewModels
     public class AlbumViewModel: IValidatableObject
     {
         public Album Album { get; set; }
-        // [Remote(action: "VerifyCoverImage", controller: "Albums")]
         public IFormFile CoverImage { get; set; }
+        public IEnumerable<String> Genres { get; set; }
+
 
         public AlbumViewModel()
         {
-            Album = new Album { Songs = new List<Song> { new Song() } };
+            Album = new Album();
             CoverImage = null;
+            Genres = new List<String>();
         }
 
         public AlbumViewModel(Album album)
         {
             Album = album;
             CoverImage = null;
+            Genres = new List<string>();
         }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

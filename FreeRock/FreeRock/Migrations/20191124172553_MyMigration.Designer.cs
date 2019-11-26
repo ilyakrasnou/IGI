@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FreeRock.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20191113101434_MyMigr")]
-    partial class MyMigr
+    [Migration("20191124172553_MyMigration")]
+    partial class MyMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -23,11 +23,14 @@ namespace FreeRock.Migrations
 
             modelBuilder.Entity("FreeRock.Models.Album", b =>
                 {
-                    b.Property<int>("AlbumID")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<int>("ArtistID");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .ValueGeneratedOnAdd();
 
                     b.Property<string>("Description");
 
@@ -40,7 +43,7 @@ namespace FreeRock.Migrations
                     b.Property<string>("Title")
                         .IsRequired();
 
-                    b.HasKey("AlbumID");
+                    b.HasKey("ID");
 
                     b.HasIndex("ArtistID");
 
@@ -51,9 +54,12 @@ namespace FreeRock.Migrations
 
             modelBuilder.Entity("FreeRock.Models.Artist", b =>
                 {
-                    b.Property<int>("ArtistID")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("CreatedDate")
+                        .ValueGeneratedOnAdd();
 
                     b.Property<string>("Description");
 
@@ -62,7 +68,7 @@ namespace FreeRock.Migrations
 
                     b.Property<string>("PhotoPath");
 
-                    b.HasKey("ArtistID");
+                    b.HasKey("ID");
 
                     b.HasIndex("Name");
 
@@ -77,7 +83,7 @@ namespace FreeRock.Migrations
 
                     b.Property<string>("AuthorId");
 
-                    b.Property<int?>("CommentableObjAlbumID");
+                    b.Property<int?>("CommentableObjID");
 
                     b.Property<DateTime>("Date");
 
@@ -87,7 +93,7 @@ namespace FreeRock.Migrations
 
                     b.HasIndex("AuthorId");
 
-                    b.HasIndex("CommentableObjAlbumID");
+                    b.HasIndex("CommentableObjID");
 
                     b.ToTable("Comment<Album>");
                 });
@@ -100,7 +106,7 @@ namespace FreeRock.Migrations
 
                     b.Property<string>("AuthorId");
 
-                    b.Property<int?>("CommentableObjArtistID");
+                    b.Property<int?>("CommentableObjID");
 
                     b.Property<DateTime>("Date");
 
@@ -110,44 +116,21 @@ namespace FreeRock.Migrations
 
                     b.HasIndex("AuthorId");
 
-                    b.HasIndex("CommentableObjArtistID");
+                    b.HasIndex("CommentableObjID");
 
                     b.ToTable("Comment<Artist>");
                 });
 
-            modelBuilder.Entity("FreeRock.Models.Comment<FreeRock.Models.Song>", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("AuthorId");
-
-                    b.Property<int?>("CommentableObjSongID");
-
-                    b.Property<DateTime>("Date");
-
-                    b.Property<string>("Text");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("AuthorId");
-
-                    b.HasIndex("CommentableObjSongID");
-
-                    b.ToTable("Comment<Song>");
-                });
-
             modelBuilder.Entity("FreeRock.Models.Genre", b =>
                 {
-                    b.Property<int>("GenreID")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Name")
                         .IsRequired();
 
-                    b.HasKey("GenreID");
+                    b.HasKey("ID");
 
                     b.ToTable("Genre");
                 });
@@ -171,7 +154,7 @@ namespace FreeRock.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("LikeableObjAlbumID");
+                    b.Property<int?>("LikeableObjID");
 
                     b.Property<byte>("Mark");
 
@@ -179,7 +162,7 @@ namespace FreeRock.Migrations
 
                     b.HasKey("ID");
 
-                    b.HasIndex("LikeableObjAlbumID");
+                    b.HasIndex("LikeableObjID");
 
                     b.HasIndex("UserId");
 
@@ -192,7 +175,7 @@ namespace FreeRock.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("LikeableObjArtistID");
+                    b.Property<int?>("LikeableObjID");
 
                     b.Property<byte>("Mark");
 
@@ -200,7 +183,7 @@ namespace FreeRock.Migrations
 
                     b.HasKey("ID");
 
-                    b.HasIndex("LikeableObjArtistID");
+                    b.HasIndex("LikeableObjID");
 
                     b.HasIndex("UserId");
 
@@ -249,7 +232,7 @@ namespace FreeRock.Migrations
                     b.ToTable("Like<Comment<Artist>>");
                 });
 
-            modelBuilder.Entity("FreeRock.Models.Like<FreeRock.Models.Comment<FreeRock.Models.Song>>", b =>
+            modelBuilder.Entity("FreeRock.Models.Like<FreeRock.Models.Song>", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
@@ -267,33 +250,12 @@ namespace FreeRock.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Like<Comment<Song>>");
-                });
-
-            modelBuilder.Entity("FreeRock.Models.Like<FreeRock.Models.Song>", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int?>("LikeableObjSongID");
-
-                    b.Property<byte>("Mark");
-
-                    b.Property<string>("UserId");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("LikeableObjSongID");
-
-                    b.HasIndex("UserId");
-
                     b.ToTable("Like<Song>");
                 });
 
             modelBuilder.Entity("FreeRock.Models.Song", b =>
                 {
-                    b.Property<int>("SongID")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -306,7 +268,7 @@ namespace FreeRock.Migrations
 
                     b.Property<string>("YouTubeUrl");
 
-                    b.HasKey("SongID");
+                    b.HasKey("ID");
 
                     b.HasIndex("AlbumID");
 
@@ -492,7 +454,7 @@ namespace FreeRock.Migrations
 
                     b.HasOne("FreeRock.Models.Album", "CommentableObj")
                         .WithMany("Comments")
-                        .HasForeignKey("CommentableObjAlbumID")
+                        .HasForeignKey("CommentableObjID")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -504,19 +466,7 @@ namespace FreeRock.Migrations
 
                     b.HasOne("FreeRock.Models.Artist", "CommentableObj")
                         .WithMany("Comments")
-                        .HasForeignKey("CommentableObjArtistID")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("FreeRock.Models.Comment<FreeRock.Models.Song>", b =>
-                {
-                    b.HasOne("FreeRock.Models.User", "Author")
-                        .WithMany()
-                        .HasForeignKey("AuthorId");
-
-                    b.HasOne("FreeRock.Models.Song", "CommentableObj")
-                        .WithMany("Comments")
-                        .HasForeignKey("CommentableObjSongID")
+                        .HasForeignKey("CommentableObjID")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -537,7 +487,7 @@ namespace FreeRock.Migrations
                 {
                     b.HasOne("FreeRock.Models.Album", "LikeableObj")
                         .WithMany("Likes")
-                        .HasForeignKey("LikeableObjAlbumID")
+                        .HasForeignKey("LikeableObjID")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("FreeRock.Models.User", "User")
@@ -549,7 +499,7 @@ namespace FreeRock.Migrations
                 {
                     b.HasOne("FreeRock.Models.Artist", "LikeableObj")
                         .WithMany("Likes")
-                        .HasForeignKey("LikeableObjArtistID")
+                        .HasForeignKey("LikeableObjID")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("FreeRock.Models.User", "User")
@@ -579,22 +529,11 @@ namespace FreeRock.Migrations
                         .HasForeignKey("UserId");
                 });
 
-            modelBuilder.Entity("FreeRock.Models.Like<FreeRock.Models.Comment<FreeRock.Models.Song>>", b =>
-                {
-                    b.HasOne("FreeRock.Models.Comment<FreeRock.Models.Song>", "LikeableObj")
-                        .WithMany("Likes")
-                        .HasForeignKey("LikeableObjID");
-
-                    b.HasOne("FreeRock.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-                });
-
             modelBuilder.Entity("FreeRock.Models.Like<FreeRock.Models.Song>", b =>
                 {
                     b.HasOne("FreeRock.Models.Song", "LikeableObj")
                         .WithMany("Likes")
-                        .HasForeignKey("LikeableObjSongID")
+                        .HasForeignKey("LikeableObjID")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("FreeRock.Models.User", "User")

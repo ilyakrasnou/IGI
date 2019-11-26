@@ -23,7 +23,7 @@ namespace FreeRock.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
+            
             modelBuilder.Entity<GenreAlbum>()
                 .HasKey(s => new { s.GenreID, s.AlbumID });
             modelBuilder.Entity<GenreAlbum>()
@@ -74,10 +74,6 @@ namespace FreeRock.Data
             //    .HasDefaultValue(false);
 
             // Relations with Song
-            modelBuilder.Entity<Song>()
-                .HasMany(x => x.Comments)
-                .WithOne(x => x.CommentableObj)
-                .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<Song>()
                 .HasMany(x => x.Likes)
                 .WithOne(x => x.LikeableObj)

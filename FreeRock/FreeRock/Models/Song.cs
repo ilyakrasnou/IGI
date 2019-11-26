@@ -9,7 +9,7 @@ namespace FreeRock.Models
 {
     public class Song
     {
-        public int SongID { get; set; }
+        public int ID { get; set; }
         [Required]
         public string Name { get; set; }
 
@@ -20,7 +20,6 @@ namespace FreeRock.Models
         public byte Number { get; set; }
         [DataType(DataType.Url)]
         public string YouTubeUrl { get; set; }
-        public virtual ICollection<Comment<Song>> Comments { get; set; }
         public virtual ICollection<Like<Song>> Likes { get; set; }
     }
 }

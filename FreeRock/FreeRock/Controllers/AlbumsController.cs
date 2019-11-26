@@ -24,6 +24,7 @@ namespace FreeRock.Controllers
         }
 
         // GET: Albums
+        [HttpGet("Albums")]
         public async Task<IActionResult> Index(string searchString)
         {
             var albums = from a in _context.Albums
@@ -40,6 +41,7 @@ namespace FreeRock.Controllers
         }
 
         // GET: Albums/Details/5
+        [HttpGet("Albums/{id:int:min(1)?}")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -48,7 +50,8 @@ namespace FreeRock.Controllers
             }
 
             var album = await _context.Albums
-                .FirstOrDefaultAsync(m => m.AlbumID == id);
+                .FirstOrDefaultAsync(m => m.ID == id);
+
             if (album == null)
             {
                 return NotFound();
@@ -57,7 +60,24 @@ namespace FreeRock.Controllers
             return View(album);
         }
 
+   
+        [HttpPost("Albums/{id:int:min(1)}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Details(int id, string NewCommentary, string userName)
+        {
+            
+            var album = await _context.Albums
+                .FirstOrDefaultAsync(m => m.ID == id);
+            
+            //AddCommentary(project, NewCommentary, UserName);
+            //_context.Projects.Update(project);
+            //await _context.SaveChangesAsync();
+            return View(album);
+        }
+
+
         // GET: Albums/Create
+        [HttpGet]
         public IActionResult Create()
         {
             PopulateArtistsDropDownList();
@@ -75,18 +95,17 @@ namespace FreeRock.Controllers
         // POST: Albums/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPost("Albums/Create")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(AlbumViewModel albumvm)
         {
-            TryValidateModel(albumvm);
             if (ModelState.IsValid)
             {
                 _context.Add(albumvm.Album);
                 await _context.SaveChangesAsync();
                 if (albumvm.CoverImage != null)
                 {
-                    using (var stream = new FileStream($"wwwroot/covers/{albumvm.Album.AlbumID}.jpg", FileMode.OpenOrCreate))
+                    using (var stream = new FileStream($"wwwroot/covers/{albumvm.Album.ID}.jpg", FileMode.OpenOrCreate))
                     {
                         await albumvm.CoverImage.CopyToAsync(stream);
                     }
@@ -98,7 +117,7 @@ namespace FreeRock.Controllers
         }
 
         // GET: Albums/Edit/5
-        [Authorize(Roles ="admin")]
+        [Authorize(Roles ="admin"), HttpGet("Albums/Edit/{id:int:min(1)}")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -119,15 +138,16 @@ namespace FreeRock.Controllers
         // POST: Albums/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPost("Albums/Edit/{id:int:min(1)}")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles ="admin")]
         public async Task<IActionResult> Edit(int id, AlbumViewModel albumvm)
         {
-            if (id != albumvm.Album.AlbumID)
+            if (id != albumvm.Album.ID)
             {
                 return NotFound();
             }
+            return View(albumvm);
             if (ModelState.IsValid)
             {
                 try
@@ -139,9 +159,9 @@ namespace FreeRock.Controllers
                         var s = albumvm.Album.Songs[i];
                         s.Number = i;
                         // check if song was in album and we need to update it
-                        if (s.SongID != 0)
+                        if (s.ID != 0)
                         {
-                            newID.Add(s.SongID);
+                            newID.Add(s.ID);
                             _context.Update(s);
                         }
                         // this is new song
@@ -157,7 +177,7 @@ namespace FreeRock.Controllers
                         IEnumerable<Song> oldSongs = _context.Songs.Where(s => s.Album == albumvm.Album);
                         foreach (var s in oldSongs)
                         {
-                            if (!newID.Contains(s.SongID))
+                            if (!newID.Contains(s.ID))
                                 _context.Remove(s);
                         }
                     }
@@ -168,7 +188,7 @@ namespace FreeRock.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!AlbumExists(albumvm.Album.AlbumID))
+                    if (!AlbumExists(albumvm.Album.ID))
                     {
                         return NotFound();
                     }
@@ -180,7 +200,7 @@ namespace FreeRock.Controllers
 
                 if (albumvm.CoverImage != null)
                 {
-                    using (var stream = new FileStream($"wwwroot/covers/{albumvm.Album.AlbumID}.jpg", FileMode.OpenOrCreate))
+                    using (var stream = new FileStream($"wwwroot/covers/{albumvm.Album.ID}.jpg", FileMode.OpenOrCreate))
                     {
                         await albumvm.CoverImage.CopyToAsync(stream);
                     }
@@ -193,6 +213,7 @@ namespace FreeRock.Controllers
         }
 
         // GET: Albums/Delete/5
+        [HttpGet("Delete/{id:int:min(1)}")]
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Delete(int? id)
         {
@@ -202,7 +223,7 @@ namespace FreeRock.Controllers
             }
 
             var album = await _context.Albums
-                .FirstOrDefaultAsync(m => m.AlbumID == id);
+                .FirstOrDefaultAsync(m => m.ID == id);
             if (album == null)
             {
                 return NotFound();
@@ -212,7 +233,7 @@ namespace FreeRock.Controllers
         }
 
         // POST: Albums/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost("Delete/{id:int:min(1)}"), ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles ="admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -229,27 +250,13 @@ namespace FreeRock.Controllers
 
         private bool AlbumExists(int id)
         {
-            return _context.Albums.Any(e => e.AlbumID == id);
+            return _context.Albums.Any(e => e.ID == id);
         }
 
         private void PopulateArtistsDropDownList(object selectedArtist = null)
         {
             var artistsQuery = _context.Artists.OrderBy(a => a.Name);
-            ViewBag.ArtistID = new SelectList(artistsQuery.AsNoTracking(), "ArtistID", "Name", selectedArtist);
+            ViewBag.ArtistID = new SelectList(artistsQuery.AsNoTracking(), "ID", "Name", selectedArtist);
         }
-
-        /*[AcceptVerbs("Get", "Post")]
-        public IActionResult VerifyCoverImage(IFormFile file)
-        {
-            if (file.Length > 268435456)
-            {
-                return Json("Too large file.");
-            }
-            if (file.ContentType != "image/jpg")
-            {
-                return Json("Not an image.");
-            }
-            return Json(true);
-        }*/
     }
 }

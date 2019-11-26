@@ -1,0 +1,18 @@
+﻿@using System.Linq
+@foreach (var commentary in Enumerable.OrderBy(Model.Comments, (Func<dynamic, dynamic>)delegate (dynamic x) { return x.Date; }))
+{
+    var author = commentary.Author;
+    <div class="card text">
+        <div class="card-header">
+            <b>@author.UserName</b> commented at @commentary.Date
+        </div>
+        <div class="card-body">
+            <p>@commentary.Text</p>
+        </div>
+    </div>
+    <hr />
+}
+<div id="messagesList"></div>
+
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+<script src="~/js/comment.js"></script>

@@ -10,15 +10,15 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FreeRock.Models
 {
-    public class Album
+    public class Album: ICommentable<Album>
     {
-        public int AlbumID { get; set; }
+        public int ID { get; set; }
         [Required]
         public string Title { get; set; }
 
         [NotMapped]
-        public string CoverPath => System.IO.File.Exists($"wwwroot/covers/{AlbumID}.jpg") ?
-            $"/covers/{AlbumID}.jpg" : $"/covers/default.jpg";
+        public string CoverPath => System.IO.File.Exists($"wwwroot/covers/{ID}.jpg") ?
+            $"/covers/{ID}.jpg" : $"/covers/default.jpg";
 
         private int? _realeseDate;
         public int? ReleaseDate
@@ -44,5 +44,7 @@ namespace FreeRock.Models
         public virtual ICollection<Like<Album>> Likes { get; set; }
         [DataType(DataType.MultilineText)]
         public string Description { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public DateTime CreatedDate { get; set; } = DateTime.Now;
     }
 }

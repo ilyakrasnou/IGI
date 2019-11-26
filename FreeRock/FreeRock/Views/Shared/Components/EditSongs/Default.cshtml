@@ -1,0 +1,103 @@
+﻿@model Album
+
+<table>
+    <thead>
+        <tr>
+            <th>
+
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Songs[0].Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Songs[0].YouTubeUrl)
+            </th>
+            <th />
+        </tr>
+    </thead>
+    <tbody id="tbody">
+        <tr id="tr-0">
+            <td>
+                @if (Model.Songs[0].ID != 0)
+                {
+                    <input type="hidden" data-val="true" name="Album.Songs[0].ID" value="@Model.Songs[0].ID">
+                }
+            </td>
+            <td>
+                <input type="text" name="Album.Songs[0].Name" value="@Model.Songs[0].Name" />
+            </td>
+            <td>
+                <input type="url" name="Album.Songs[0].YouTubeUrl" value="@Model.Songs[0].YouTubeUrl" />
+            </td>
+            <td>
+                <input type="button" value="Add" onclick="insertRow(0)" />
+            </td>
+            <td>
+                <input type="button" value="Delete" onclick="removeRow(0)" />
+            </td>
+        </tr>
+        @for (byte i = 1; i < Model.Songs.Count; ++i)
+        {
+            <tr id="tr-@i">
+                <td>
+                    <input type="hidden" data-val="true" name="Album.Songs[@i].ID" value="@Model.Songs[i].ID">
+                </td>
+                <td>
+                    <input type="text" data-val="true" data-val-required="The Name field is required." name="Album.Songs[@i].Name" value="@Model.Songs[i].Name">
+                </td>
+                <td>
+                    <input type="url" name="Album.Songs[@i].YouTubeUrl" value="@Model.Songs[i].YouTubeUrl">
+                </td>
+                <td>
+                    <input type="button" value="Add" onclick="insertRow(@i)" />
+                </td>
+                <td>
+                    <input type="button" value="Delete" onclick="removeRow(@i)" />
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script type="text/javascript">
+    updateIndex = () => {
+        $('#tbody > tr').each(function (i) {
+            $(this).attr('id', `tr-${i}`);
+            $(this).find("input[type='hidden']").attr('name', `Album.Songs[${i}].ID`);
+            $(this).find("input[type='text']").attr('name', `Album.Songs[${i}].Name`);
+            $(this).find("input[type='url']").attr('name', `Album.Songs[${i}].YouTubeUrl`);
+            $(this).find("input[value='Add']").attr('onclick', `insertRow(${i})`);
+            $(this).find("input[value='Delete']").attr('onclick', `removeRow(${i})`);
+        })
+    }
+
+    insertRow = (i) => {
+        $(`#tr-${i}`).after(
+            `
+             <tr>
+                 <td>
+                 </td>
+                 <td>
+                     <input type="text" data-val="true" data-val-required="The Name field is required.">
+                 </td>
+                 <td>
+                     <input type="url"/>
+                 </td>
+                 <td>
+                     <input type="button" value="Add" />
+                 </td>
+                 <td>
+                     <input type="button" value="Delete" />
+                 </td>
+             </tr>
+             `
+        );
+        updateIndex();
+    }
+
+    removeRow = (i) => {
+        $(`#tr-${i}`).remove();
+        updateIndex();
+    }
+
+</script>
+

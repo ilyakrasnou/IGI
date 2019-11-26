@@ -20,7 +20,7 @@ namespace FreeRock.Components
 
         public async Task<IViewComponentResult> InvokeAsync(int? id)
         {
-            Artist artist = id == null ? new Artist() : _context.Artists.FirstOrDefault(x => x.ArtistID == id);  
+            Artist artist = id == null ? new Artist() : _context.Artists.FirstOrDefault(x => x.ID == id);  
             return View(artist);
         }
             

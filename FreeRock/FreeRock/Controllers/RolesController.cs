@@ -19,10 +19,17 @@ namespace CustomIdentityApp.Controllers
             _roleManager = roleManager;
             _userManager = userManager;
         }
+
+        [Authorize(Roles = "admin")]
+        [HttpGet("Roles")]
         public IActionResult Index() => View(_roleManager.Roles.ToList());
 
+        [Authorize(Roles = "admin")]
+        [HttpGet("Roles/Create")]
         public IActionResult Create() => View();
-        [HttpPost]
+
+        [HttpPost("Roles/Create/")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Create(string name)
         {
             if (!string.IsNullOrEmpty(name))
@@ -43,7 +50,7 @@ namespace CustomIdentityApp.Controllers
             return View(name);
         }
 
-        [HttpPost]
+        [HttpPost("Roles/Delete/{id}")]
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Delete(string id)
         {
@@ -55,9 +62,12 @@ namespace CustomIdentityApp.Controllers
             return RedirectToAction("Index");
         }
 
+        [Authorize(Roles = "admin")]
+        [HttpGet("Roles/UserRoles")]
         public IActionResult UserList() => View(_userManager.Users.ToList());
 
         [Authorize(Roles = "admin")]
+        [HttpGet("Roles/Edit/{userId}")]
         public async Task<IActionResult> Edit(string userId)
         {
             // получаем пользователя
@@ -79,7 +89,7 @@ namespace CustomIdentityApp.Controllers
 
             return NotFound();
         }
-        [HttpPost]
+        [HttpPost("Roles/Edit/{userId}")]
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Edit(string userId, List<string> roles)
         {

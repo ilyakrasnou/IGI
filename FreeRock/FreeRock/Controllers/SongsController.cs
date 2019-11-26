@@ -38,7 +38,7 @@ namespace FreeRock.Controllers
             }
 
             var song = await _context.Songs
-                .FirstOrDefaultAsync(m => m.SongID == id);
+                .FirstOrDefaultAsync(m => m.ID == id);
             if (song == null)
             {
                 return NotFound();
@@ -94,7 +94,7 @@ namespace FreeRock.Controllers
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Edit(int id, [Bind("ID,Name,YouTubeUrl")] Song song)
         {
-            if (id != song.SongID)
+            if (id != song.ID)
             {
                 return NotFound();
             }
@@ -108,7 +108,7 @@ namespace FreeRock.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!SongExists(song.SongID))
+                    if (!SongExists(song.ID))
                     {
                         return NotFound();
                     }
@@ -132,7 +132,7 @@ namespace FreeRock.Controllers
             }
 
             var song = await _context.Songs
-                .FirstOrDefaultAsync(m => m.SongID == id);
+                .FirstOrDefaultAsync(m => m.ID == id);
             if (song == null)
             {
                 return NotFound();
@@ -155,7 +155,7 @@ namespace FreeRock.Controllers
 
         private bool SongExists(int id)
         {
-            return _context.Songs.Any(e => e.SongID == id);
+            return _context.Songs.Any(e => e.ID == id);
         }
     }
 }

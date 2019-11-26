@@ -25,11 +25,11 @@ namespace FreeRock
                 var services = scope.ServiceProvider;
                 try
                 {
-                    var context = services.GetRequiredService<ApplicationDbContext>();
-                    DbInitializer.Initialize(context);
                     var userManager = services.GetRequiredService<UserManager<User>>();
                     var rolesManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+                    var context = services.GetRequiredService<ApplicationDbContext>();
                     await RoleInitializer.InitializeAsync(userManager, rolesManager);
+                    DbInitializer.Initialize(context);
                 }
                 catch (Exception ex)
                 {

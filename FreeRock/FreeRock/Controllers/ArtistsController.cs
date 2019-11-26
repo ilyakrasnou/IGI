@@ -21,6 +21,7 @@ namespace FreeRock.Controllers
         }
 
         // GET: Artists
+        [HttpGet("Artists/")]
         public async Task<IActionResult> Index()
         {
             if (User.IsInRole("admin"))
@@ -30,6 +31,7 @@ namespace FreeRock.Controllers
         }
 
         // GET: Artists/Details/5
+        [HttpGet("Artists/{id:int:min(1)}")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -38,7 +40,7 @@ namespace FreeRock.Controllers
             }
 
             var artist = await _context.Artists
-                .FirstOrDefaultAsync(m => m.ArtistID == id);
+                .FirstOrDefaultAsync(m => m.ID == id);
             if (artist == null)
             {
                 return NotFound();
@@ -48,6 +50,7 @@ namespace FreeRock.Controllers
         }
 
         // GET: Artists/Create
+        [HttpGet("Artists/Create")]
         public IActionResult Create()
         {
             return View();
@@ -71,6 +74,7 @@ namespace FreeRock.Controllers
 
         // GET: Artists/Edit/5
         [Authorize(Roles = "admin")]
+        [HttpGet("Artists/Edit/{id:int:min(1)}")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -89,12 +93,12 @@ namespace FreeRock.Controllers
         // POST: Artists/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPost("Edit/{id:int:min(1)}")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles ="admin")]
         public async Task<IActionResult> Edit(int id, [Bind("ID,Name,Description,PhotoPath")] Artist artist)
         {
-            if (id != artist.ArtistID)
+            if (id != artist.ID)
             {
                 return NotFound();
             }
@@ -108,7 +112,7 @@ namespace FreeRock.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ArtistExists(artist.ArtistID))
+                    if (!ArtistExists(artist.ID))
                     {
                         return NotFound();
                     }
@@ -124,6 +128,7 @@ namespace FreeRock.Controllers
 
         // GET: Artists/Delete/5
         [Authorize(Roles = "admin")]
+        [HttpGet("Delete/{id:int:min(1)}")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -132,7 +137,7 @@ namespace FreeRock.Controllers
             }
 
             var artist = await _context.Artists
-                .FirstOrDefaultAsync(m => m.ArtistID == id);
+                .FirstOrDefaultAsync(m => m.ID == id);
             if (artist == null)
             {
                 return NotFound();
@@ -142,7 +147,7 @@ namespace FreeRock.Controllers
         }
 
         // POST: Artists/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost("Artist/{id:int:min(1)}"), ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -155,7 +160,7 @@ namespace FreeRock.Controllers
 
         private bool ArtistExists(int id)
         {
-            return _context.Artists.Any(e => e.ArtistID == id);
+            return _context.Artists.Any(e => e.ID == id);
         }
     }
 }

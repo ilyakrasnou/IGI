@@ -13,7 +13,7 @@ namespace FreeRock.Models
         
         public virtual User Author { get; set; }
 
-        public DateTime Date { get; set; }
+        public DateTime Date { get; set; } = DateTime.Now;
         [DataType(DataType.MultilineText)]
         public string Text { get; set; }
         public virtual ICollection<Like<Comment<T>>> Likes { get; set; }

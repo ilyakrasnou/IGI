@@ -16,6 +16,19 @@
         Title: <input type="text" name="SearchString">
         <input type="submit" value="Filter" />
     </p>
+    <select title="field">
+        <option>title</option>
+        <option>artist's name</option>
+        <option>tags</option>
+    </select>
+    <select title="sort by field">
+        <option>rating</option>
+        <option>realese data</option>
+    </select>
+    <select title="sort">
+        <option>by ascending</option>
+        <option>by descending</option>
+    </select>
 </form>
 <table class="table">
     <thead>
@@ -53,15 +66,15 @@
             @if (User.IsInRole("admin"))
             {
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.AlbumID">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.AlbumID">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.AlbumID">Delete</a>
+                    <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
                 </td>
             }
             else
             {
                 <td>
-                    <a asp-action="Details" asp-route-id="@item.AlbumID">Details</a>
+                    <a asp-action="Details" asp-route-id="@item.ID">Details</a>
                 </td>
             }
         </tr>

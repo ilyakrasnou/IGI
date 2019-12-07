@@ -45,7 +45,9 @@ namespace FreeRock.Controllers
             {
                 return NotFound();
             }
-
+            User user = _context.Users.FirstOrDefault(x => x.UserName == User.Identity.Name);
+            var mark = artist.Likes.FirstOrDefault(x => x.User == user);
+            ViewBag.CurrentUserMark = mark is null ? 0 : mark.Mark;
             return View(artist);
         }
 
@@ -61,7 +63,7 @@ namespace FreeRock.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Name,Description,PhotoPath")] Artist artist)
+        public async Task<IActionResult> Create([Bind("ID,Name,Description")] Artist artist)
         {
             if (ModelState.IsValid)
             {
@@ -93,10 +95,10 @@ namespace FreeRock.Controllers
         // POST: Artists/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost("Edit/{id:int:min(1)}")]
+        [HttpPost("Artists/Edit/{id:int:min(1)}")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles ="admin")]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,Description,PhotoPath")] Artist artist)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,Description")] Artist artist)
         {
             if (id != artist.ID)
             {
@@ -128,7 +130,7 @@ namespace FreeRock.Controllers
 
         // GET: Artists/Delete/5
         [Authorize(Roles = "admin")]
-        [HttpGet("Delete/{id:int:min(1)}")]
+        [HttpGet("Artists/Delete/{id:int:min(1)}")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -147,7 +149,7 @@ namespace FreeRock.Controllers
         }
 
         // POST: Artists/Delete/5
-        [HttpPost("Artist/{id:int:min(1)}"), ActionName("Delete")]
+        [HttpPost("Artists/Delete/{id:int:min(1)}"), ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -155,7 +157,33 @@ namespace FreeRock.Controllers
             var artist = await _context.Artists.FindAsync(id);
             _context.Artists.Remove(artist);
             await _context.SaveChangesAsync();
+            if (System.IO.File.Exists($"wwwroot/photos/{id}.jpeg"))
+            {
+                System.IO.File.Delete($"wwwroot/photos/{id}.jpeg");
+            }
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost("Artists/Mark/{id:int:min(1)}")]
+        public async Task<object> MarkArtist(int id, sbyte mark, string userName)
+        {
+            var artist = _context.Artists.FirstOrDefault(x => x.ID == id);
+            if (userName is null || mark == 0 || artist is null)
+                return new { rating = artist.Likes.Sum(x => x.Mark), mark = 0 };
+            User user = _context.Users.FirstOrDefault(x => x.UserName == userName);
+            var oldMark = artist.Likes.FirstOrDefault(x => x.User == user);
+            if (oldMark is null)
+            {
+                artist.Likes.Add(new Like<Artist> { User = user, LikeableObj = artist, Mark = mark });
+            }
+            else
+            {
+                oldMark.Mark = mark;
+            }
+            _context.Update(artist);
+            await _context.SaveChangesAsync();
+            var rating = artist.Likes.Sum(x => x.Mark);
+            return new { rating, mark };
         }
 
         private bool ArtistExists(int id)

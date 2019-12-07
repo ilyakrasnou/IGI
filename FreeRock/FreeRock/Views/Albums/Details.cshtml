@@ -47,15 +47,13 @@
         </dl>
     </div>
     <table class="table">
-        <tbody>
+        <tbody id="table-body-id">
             @foreach (var song in Model.Songs.OrderBy(s => s.Number))
             {
-                <tr>
+                var eventClick = $"openFrame(\"{song.YouTubeUrl}\")";
+                <tr onclick="@eventClick">
                     <td>
                         @Html.DisplayFor(modelItem => song.Name)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => song.YouTubeUrl)
                     </td>
                 </tr>
             }
@@ -65,11 +63,23 @@
         <a asp-action="Edit" asp-route-id="@Model.ID">Edit</a> |
         <a asp-action="Index">Back to List</a>
     </div>
-    <input hidden value="@Model.ID" type="number" name="id" id="id">
-    <input hidden name="userName" id="userName" type="text" value="@User.Identity.Name">
-    <input hidden name="typeModel" id="typeModel" type="text" value="@typeof(Album).Name"/>
+    <div>
+        @if (User.Identity.IsAuthenticated)
+        {
+            <label id="rating"> @Model.Likes.Sum(x => x.Mark)</label>
+        }
+        else
+        {
+            <button type="button" class="btn" id="pos-mark" onclick="updateRating(1)"></button>
+            <label id="rating"> @Model.Likes.Sum(x => x.Mark)</label>
+            <button type="button" class="btn" id="neg-mark" onclick="updateRating(-1)"></button>
+        }
+    </div>
     @if (User.Identity.IsAuthenticated)
     {
+        <input hidden value="@Model.ID" type="number" name="id" id="id">
+        <input hidden name="userName" id="userName" type="text" value="@User.Identity.Name">
+        <input hidden name="typeModel" id="typeModel" type="text" value="@typeof(Album).Name" />
         <p><h5>Leave your comment:</h5></p>
         <p><textarea style="width: 500px; height: 100px;" name="NewCommentary" id="NewCommentary"></textarea></p>
 
@@ -79,4 +89,61 @@
     }
 </form>
 
+<div id="iframe-container" style="position:fixed; bottom:0; right:0">
+
+</div>
+
 @Html.Partial("_Comments")
+
+<script type="text/javascript">
+    openFrame = url => {
+        var re = /https?:\/\/(?:[0-9A-Z-]+\.)?(?:youtu\.be\/|youtube(?:-nocookie)?\.com\S*?[^\w\s-])([\w-]{11})(?=[^\w-]|$)(?![?=&+%\w.-]*(?:['"][^<>]*>|<\/a>))[?=&+%\w.-]*/ig;
+        var videoID = url.replace(re, "$1").trim();
+        console.log(videoID);
+        if (videoID != "") {
+            $("#iframe-container").html('');
+            $("#iframe-container").append(`<iframe width="420" height="315" src="https://www.youtube.com/embed/${videoID}?autoplay=1"></iframe>`);
+        }
+        else {
+            alert("Sorry. We don't have video for this song ((")
+        }
+    }
+
+    updateRating = (mark) =>
+        $.ajax({
+            cache: false,
+            url: '@Url.Action("MarkAlbum", "Albums")',
+            type: 'POST',
+            data: {
+                id: $('#id').val(),
+                mark: mark,
+                userName: $('#userName').val()
+
+            },
+            success: result => {
+                $('#rating').text(result.rating);
+                updateMark(result.mark);
+            }
+        })
+
+    updateMark = (mark) => {
+        var posMark = $('#pos-mark');
+        var negMark = $('#neg-mark');
+        posMark.css("background-color", "grey");
+        posMark.text('0');
+        negMark.css("background-color", "grey");
+        negMark.text('0');
+        if (mark > 0) {
+            posMark.text(mark);
+            posMark.css("background-color", "green");
+        }
+        if (mark < 0) {
+            negMark.text(mark);
+            negMark.css("background-color", "red");
+        }
+    }
+
+    $().ready(function () {
+        updateMark(@ViewBag.CurrentUserMark);
+    });
+</script>

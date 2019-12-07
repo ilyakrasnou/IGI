@@ -1,6 +1,4 @@
-﻿@model IEnumerable<FreeRock.Models.Album>
-
-@{
+﻿@{
     ViewData["Title"] = "Index";
 }
 
@@ -12,72 +10,131 @@
     <a asp-action="Create">Create New</a>
 </p>
 <form asp-action="Index" method="get">
-    <p>
-        Title: <input type="text" name="SearchString">
-        <input type="submit" value="Filter" />
-    </p>
-    <select title="field">
-        <option>title</option>
-        <option>artist's name</option>
-        <option>tags</option>
-    </select>
-    <select title="sort by field">
-        <option>rating</option>
-        <option>realese data</option>
-    </select>
-    <select title="sort">
-        <option>by ascending</option>
-        <option>by descending</option>
-    </select>
+    <div class="form-actions no-color">
+        <p>
+            Find by name: <input id="search-string" type="text" name="SearchString" value="" />
+            <select id="select-sort-by">
+                <option value="Title">названию</option>
+                <option value="CreatedDate" selected >новизне</option>
+                <option value="ReleaseDate">дате выпуска</option>
+            </select>
+            <select id="select-sort-order">
+                <option value="asc" selected>by ascending</option>
+                <option value="desc">by descending</option>
+            </select>
+            <input type="button" value="Search" class="btn btn-default" onclick="updateContent()" /> |
+            <a asp-action="Index">Back to Full List</a>
+        </p>
+    </div>
 </form>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CoverPath)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ReleaseDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CoverPath)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ReleaseDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            @if (User.IsInRole("admin"))
-            {
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
-                </td>
+
+<div>
+
+    <div class="container album-container" id="album-container">
+    </div>
+
+    <div class="pagination" id="pagination">
+        <button id="prev-page-btn" onClick="changePage(-1)" disabled>
+            <<
+        </button>
+        <button id="next-page-btn" onClick="changePage(1)" disabled>
+            >>
+        </button>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+
+    const pagination = {
+        currentPage: 1,
+        lastPage: 1,
+        perPage: 2
+    };
+
+    let content = [];
+
+    checkDisable = () => {
+        $("#prev-page-btn").attr("disabled", false);
+        $("#next-page-btn").attr("disabled", false);
+        if (pagination.currentPage == 1) {
+            $("#prev-page-btn").attr("disabled", true);
+        }
+        if (pagination.currentPage == pagination.lastPage) {
+            $("#next-page-btn").attr("disabled", true);
+        }
+    };
+
+    changePage = (x) => {
+        const newPage = pagination.currentPage + x;
+        if (newPage > 0 && newPage <= pagination.lastPage) {
+            pagination.currentPage = newPage;
+        }
+        updateContent();
+    };
+
+    updateContent = () =>
+        $.ajax({
+            cache: false,
+            url: '@Url.Action("GetAlbums", "Albums")',
+            type: 'GET',
+            data: {
+                page: pagination.currentPage,
+                perPage: pagination.perPage,
+                searchString: $("#search-string").val(),
+                sortBy: $("#select-sort-by").val(),
+                sortOrder: $("#select-sort-order").val()
+            },
+            success: result => {
+                pagination.lastPage = result.lastPage;
+                content = result.data.map(e =>
+                    ({
+                        img: e.coverPath,
+                        title: e.title,
+                        artistName: e.artistName,
+                        releaseDate: e.releaseDate,
+                        createdDate: e.createdDate,
+                        id: e.id
+                    })
+                );
+                updateFlex();
+                checkDisable();
             }
-            else
-            {
-                <td>
-                    <a asp-action="Details" asp-route-id="@item.ID">Details</a>
-                </td>
-            }
-        </tr>
-}
-    </tbody>
-</table>
+        })
+
+    updateFlex = () => {
+        const container = $("#album-container");
+        container.empty();
+        content.forEach(e =>
+            container.append(
+                `<div class="content">
+                    <a href="/Albums/${e.id}">
+                        <img src="${e.img}" width="100%"/>
+                    </a>
+                    <div>${e.title}</div>
+                </div>`
+            ));
+    };
+
+    $().ready(function () {
+        updateContent();
+        updateFlex();
+    });
+
+</script>
+
+<style type="text/css">
+
+    div.album-container {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    div.content {
+        width: 20%;
+        padding: 10px;
+        margin: 2px;
+        border: 1px solid #EEEEEE;
+        border-radius: 20px;
+    }
+</style>

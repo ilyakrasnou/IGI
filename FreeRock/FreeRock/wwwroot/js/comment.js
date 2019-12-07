@@ -4,10 +4,10 @@ var type = document.getElementById("typeModel").value
 var connection = new signalR.HubConnectionBuilder().withUrl("/CommentHub/" + type).build();
 
 //Disable send button until connection is established
-document.getElementById("sendButton").disabled = true;
+var b = document.getElementById("sendButton")
+if (b != null) { b.disabled = true; }
 
 connection.on("ReceiveMessage", function (user, message, date) {
-
 
     var msg = `<div class="card text"> <div class="card-header"> <b>` + user + `</b>` + " comemnted at " + date + `</div> <div class="card-body"> <p>` + message + `</p> </div> </div> <hr />`;
 

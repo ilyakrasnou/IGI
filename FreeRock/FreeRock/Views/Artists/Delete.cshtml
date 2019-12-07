@@ -18,16 +18,16 @@
             @Html.DisplayFor(model => model.Name)
         </dd>
         <dt>
+            @Html.DisplayNameFor(model => model.PhotoPath)
+        </dt>
+        <dd>
+            <img src="@Model.PhotoPath" height="128" width="128" />
+        </dd>
+        <dt>
             @Html.DisplayNameFor(model => model.Description)
         </dt>
         <dd>
             @Html.DisplayFor(model => model.Description)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.PhotoPath)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.PhotoPath)
         </dd>
     </dl>
     

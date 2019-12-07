@@ -26,25 +26,12 @@
                 </div>
                 <div class="col-6 input-group">
                     <div class="custom-file">
-                        <input type="file" class="custom-file-input" id="file" accept=".jpg" asp-for="CoverImage">
+                        <input type="file" class="custom-file-input" id="file" accept=".jpeg,.jpg" asp-for="CoverImage">
                         <label class="custom-file-label" asp-for="CoverImage">Upload new picture</label>
                         <span style="color: tomato" asp-validation-for="CoverImage"></span>
                     </div>
                 </div>
             </div>
-
-            <!--
-    <div class="form-group">
-        <label asp-for="Album.CoverPath" class="control-label"></label>
-        <input asp-for="Album.CoverPath" class="form-control" />
-        <span asp-validation-for="Album.CoverPath" class="text-danger"></span>
-    </div>
-    -->
-            <!--<div class="form-group">
-        <label asp-for="Artist.Name" class="control-label"></label>
-        <input name="Artist.Name" class="form-control" />
-        <span asp-validation-for="ReleaseDate" class="text-danger"></span>
-    </div>-->
             <div class="form-group">
                 <label asp-for="Album.Artist" class="control-label"></label>
                 <select asp-for="Album.ArtistID" class="form-control" asp-items="ViewBag.ArtistID">
@@ -63,49 +50,20 @@
                 <span asp-validation-for="Album.Description" class="text-danger"></span>
             </div>
             @await  Component.InvokeAsync("EditSongs", Model.Album)
-            <div class="container col-4">
-                <div class="panel panel-default">
-                    <div class="panel-body">
-                        <div class="input-group control-group after-add-more-tags">
-                            <div class="input-group mb-2">
-                                <div class="input-group-prepend">
-                                    <div class="input-group-text"> # </div>
-                                </div>
-                                <input type="text" name="Album.ags[0].Text" class="form-control input-group-prepend" placeholder="Enter Tag Here">
-                                <div class="input-group-btn">
-                                    <button class="btn btn-success add-more-tags" type="button"><i class="fas fa-plus"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="copy-tags hide" hidden>
-                            <div class="input-group control-group mb-2 mt-2">
-                                <div class="input-group-prepend">
-                                    <div class="input-group-text"> # </div>
-                                </div>
-                                <input type="text" name="tags[].Text" class="form-control input-group-prepend" placeholder="Enter Tag Here">
-                                <div class="input-group-btn">
-                                    <button class="btn btn-danger remove-tags" type="button"><i class="fas fa-trash-alt"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <script type="text/javascript">
-                    $(document).ready(function () {
-                        counter2 = 1;
-                        $(".add-more-tags").click(function () {
-                            var html = $(".copy-tags").html().replace("[]", "[" + counter2 + "]");
-                            $(".after-add-more-tags").after(html);
-                            counter2 += 1;
-                        });
-
-                        $("body").on("click", ".remove-tags", function () {
-                            $(this).parents(".control-group").remove();
-                            counter2 -= 1;
-                        });
-                    });
-                </script>
-            </div>
+            <table>
+                <thead></thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <input type="number" hidden/>
+                        </td>
+                        <td>
+                            <input id="input-id" type="text" list="datalist-id">
+                            <datalist id="datalist-id"></datalist>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-default" />
             </div>

@@ -16,7 +16,6 @@ namespace FreeRock.Migrations
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(nullable: false),
                     Description = table.Column<string>(nullable: true),
-                    PhotoPath = table.Column<string>(nullable: true),
                     CreatedDate = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
@@ -242,7 +241,7 @@ namespace FreeRock.Migrations
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     UserId = table.Column<string>(nullable: true),
                     LikeableObjID = table.Column<int>(nullable: true),
-                    Mark = table.Column<byte>(nullable: false)
+                    Mark = table.Column<short>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -321,7 +320,7 @@ namespace FreeRock.Migrations
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     UserId = table.Column<string>(nullable: true),
                     LikeableObjID = table.Column<int>(nullable: true),
-                    Mark = table.Column<byte>(nullable: false)
+                    Mark = table.Column<short>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -360,87 +359,6 @@ namespace FreeRock.Migrations
                         principalTable: "Album",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Like<Comment<Artist>>",
-                columns: table => new
-                {
-                    ID = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    UserId = table.Column<string>(nullable: true),
-                    LikeableObjID = table.Column<int>(nullable: true),
-                    Mark = table.Column<byte>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Like<Comment<Artist>>", x => x.ID);
-                    table.ForeignKey(
-                        name: "FK_Like<Comment<Artist>>_Comment<Artist>_LikeableObjID",
-                        column: x => x.LikeableObjID,
-                        principalTable: "Comment<Artist>",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Like<Comment<Artist>>_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Like<Comment<Album>>",
-                columns: table => new
-                {
-                    ID = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    UserId = table.Column<string>(nullable: true),
-                    LikeableObjID = table.Column<int>(nullable: true),
-                    Mark = table.Column<byte>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Like<Comment<Album>>", x => x.ID);
-                    table.ForeignKey(
-                        name: "FK_Like<Comment<Album>>_Comment<Album>_LikeableObjID",
-                        column: x => x.LikeableObjID,
-                        principalTable: "Comment<Album>",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Like<Comment<Album>>_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Like<Song>",
-                columns: table => new
-                {
-                    ID = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    UserId = table.Column<string>(nullable: true),
-                    LikeableObjID = table.Column<int>(nullable: true),
-                    Mark = table.Column<byte>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Like<Song>", x => x.ID);
-                    table.ForeignKey(
-                        name: "FK_Like<Song>_Song_LikeableObjID",
-                        column: x => x.LikeableObjID,
-                        principalTable: "Song",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Like<Song>_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
@@ -543,36 +461,6 @@ namespace FreeRock.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Like<Comment<Album>>_LikeableObjID",
-                table: "Like<Comment<Album>>",
-                column: "LikeableObjID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Like<Comment<Album>>_UserId",
-                table: "Like<Comment<Album>>",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Like<Comment<Artist>>_LikeableObjID",
-                table: "Like<Comment<Artist>>",
-                column: "LikeableObjID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Like<Comment<Artist>>_UserId",
-                table: "Like<Comment<Artist>>",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Like<Song>_LikeableObjID",
-                table: "Like<Song>",
-                column: "LikeableObjID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Like<Song>_UserId",
-                table: "Like<Song>",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Song_AlbumID",
                 table: "Song",
                 column: "AlbumID");
@@ -601,6 +489,12 @@ namespace FreeRock.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "Comment<Album>");
+
+            migrationBuilder.DropTable(
+                name: "Comment<Artist>");
+
+            migrationBuilder.DropTable(
                 name: "GenreAlbum");
 
             migrationBuilder.DropTable(
@@ -610,28 +504,13 @@ namespace FreeRock.Migrations
                 name: "Like<Artist>");
 
             migrationBuilder.DropTable(
-                name: "Like<Comment<Album>>");
-
-            migrationBuilder.DropTable(
-                name: "Like<Comment<Artist>>");
-
-            migrationBuilder.DropTable(
-                name: "Like<Song>");
+                name: "Song");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "Genre");
-
-            migrationBuilder.DropTable(
-                name: "Comment<Album>");
-
-            migrationBuilder.DropTable(
-                name: "Comment<Artist>");
-
-            migrationBuilder.DropTable(
-                name: "Song");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

@@ -13,21 +13,25 @@ namespace FreeRock.ViewModels
     {
         public Album Album { get; set; }
         public IFormFile CoverImage { get; set; }
-        public IEnumerable<String> Genres { get; set; }
+        public IFormFile PhotoImage { get; set; }
+        public int Mark { get; private set; }
+        public IEnumerable<Genre> Genres { get; set; }
 
 
         public AlbumViewModel()
         {
             Album = new Album();
             CoverImage = null;
-            Genres = new List<String>();
+            PhotoImage = null;
+            Genres = new List<Genre>();
         }
 
         public AlbumViewModel(Album album)
         {
             Album = album;
             CoverImage = null;
-            Genres = new List<string>();
+            PhotoImage = null;
+            Genres = album.AlbumGenres.Select(x => x.Genre).ToList();
         }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -39,9 +43,20 @@ namespace FreeRock.ViewModels
                 {
                     errors.Add(new ValidationResult("Too large file."));
                 }
-                if (CoverImage.ContentType != "image/jpg")
+                if (CoverImage.ContentType != "image/jpeg")
                 {
-                    errors.Add(new ValidationResult("Not .jpg file."));
+                    errors.Add(new ValidationResult("Not .jpeg or .jpg file."));
+                }
+            }
+            if (PhotoImage != null)
+            {;
+                if (PhotoImage.Length > 268435456)
+                {
+                    errors.Add(new ValidationResult("Too large file."));
+                }
+                if (PhotoImage.ContentType != "image/jpeg")
+                {
+                    errors.Add(new ValidationResult("Not .jpeg or .jpg file."));
                 }
             }
             return errors;

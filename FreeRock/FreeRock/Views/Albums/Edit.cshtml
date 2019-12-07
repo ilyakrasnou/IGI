@@ -13,7 +13,7 @@
         <form asp-action="Edit" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Album.ID" />
-            
+
             <div class="form-group">
                 <label asp-for="Album.Title" class="control-label"></label>
                 <input asp-for="Album.Title" class="form-control" />
@@ -23,31 +23,74 @@
 
             <div class="form-group row">
                 <div class="col-6">
-                    <cover-image source="@Model.Album.CoverPath" alt-name="@Model.Album.Title"/>
+                    <cover-image source="@Model.Album.CoverPath" alt-name="@Model.Album.Title" />
                 </div>
                 <div class="col-6 input-group">
                     <div class="custom-file">
-                        <input type="file" class="custom-file-input" id="file" accept=".jpg" asp-for="CoverImage">
+                        <input type="file" class="custom-file-input" id="file" accept=".jpeg,.jpg" asp-for="CoverImage">
                         <label class="custom-file-label" asp-for="CoverImage">Upload new picture</label>
                         <span asp-validation-for="CoverImage" class="text-danger"></span>
                     </div>
                 </div>
             </div>
-            <div class="form-group">
+            <div id="select-artist">
                 <label asp-for="Album.Artist" class="control-label"></label>
-                <!--<input hidden type="number" class="form-control" list="artist-id"/>-->
-                <!--<input hidden list="artist-id" asp-for="Album.ArtistID"/>-->
-                <input type="text" class="form-control" list="artist-id" asp-for="Album.ArtistID"/>
-                <datalist id="artist-id" list-items="ViewBag.ArtistID">
-                    <!--foreach (var di in ViewBag.ArtistID) {
-                        <option value="di.Value" title="di.Text"></option>
-                    }-->
-                </datalist>
+                <select asp-for="Album.ArtistID" class="form-control" asp-items="ViewBag.ArtistID">
+                    <option value="">-- Select Department --</option>
+                </select>
                 <span asp-validation-for="Album.ArtistID" class="text-danger" />
             </div>
-            <div>
-                @await Component.InvokeAsync("ArtistMin", Model.Album.ArtistID)
+            <div id="create-artist" hidden>
+                <div class="form-group">
+                    <label asp-for="Album.Artist.Name" class="control-label"></label>
+                    <input asp-for="Album.Artist.Name" class="form-control" value="" />
+                    <span asp-validation-for="Album.Artist.Name" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Album.Artist.Description" class="control-label"></label>
+                    <input asp-for="Album.Artist.Description" value="" class="form-control" />
+                    <span asp-validation-for="Album.Artist.Description" class="text-danger"></span>
+                </div>
+                <div class="col-6 input-group">
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="file" accept=".jpeg,.jpg" asp-for="PhotoImage">
+                        <label class="custom-file-label" asp-for="PhotoImage">Upload new picture</label>
+                        <span asp-validation-for="PhotoImage" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
+            <div>
+                <input id="change-mode" type="button" value="or create new" onclick="changeMode()" />
+            </div>
+            <script type="text/javascript">
+                changeMode = () => {
+                    var btnChange = $('#change-mode')
+                    var currMode = btnChange.val();
+                    var createArtist = $('#create-artist');
+                    var selectArtist = $('#select-artist');
+                    if (currMode == "or create new") {
+                        createArtist.attr("hidden", false);
+                        selectArtist.attr("hidden", true);
+                        btnChange.val("or select existed");
+                    } else if (currMode == "or select existed") {
+                        selectArtist.attr("hidden", false);
+                        createArtist.attr("hidden", true);
+                        btnChange.val("or create new");
+                    }
+                }
+
+                submitArtist = () => {
+                    var btnChange = $('#change-mode')
+                    var currMode = btnChange.val();
+                    var createArtist = $('#create-artist');
+                    var selectArtist = $('#select-artist');
+                    if (currMode == "or create new") {
+                        createArtist.empty();
+                    } else if (currMode == "or select existed") {
+                        selectArtist.empty();
+                    }
+                }
+            </script>
             <div class="form-group">
                 <label asp-for="Album.ReleaseDate" class="control-label"></label>
                 <input asp-for="Album.ReleaseDate" class="form-control" />
@@ -66,12 +109,12 @@
                     <span asp-validation-for="Album.IsVerified" class="slider round"></span>
                 </label>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-default" />
+            <div>
+                <input hidden asp-for="Album.CreatedDate"/>
             </div>
-            <script>
-
-            </script>
+            <div class="form-group">
+                <input type="submit" value="Save" id="btn-save" class="btn btn-default" onclick="submitArtist()" />
+            </div>
         </form>
     </div>
 </div>

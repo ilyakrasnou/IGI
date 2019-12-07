@@ -16,7 +16,6 @@ namespace FreeRock.Models
         public DateTime Date { get; set; } = DateTime.Now;
         [DataType(DataType.MultilineText)]
         public string Text { get; set; }
-        public virtual ICollection<Like<Comment<T>>> Likes { get; set; }
 
         public virtual T CommentableObj { get; set; }
     }

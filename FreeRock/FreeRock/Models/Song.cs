@@ -20,6 +20,5 @@ namespace FreeRock.Models
         public byte Number { get; set; }
         [DataType(DataType.Url)]
         public string YouTubeUrl { get; set; }
-        public virtual ICollection<Like<Song>> Likes { get; set; }
     }
 }

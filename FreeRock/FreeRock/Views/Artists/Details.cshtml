@@ -18,16 +18,16 @@
                 @Html.DisplayFor(model => model.Name)
             </dd>
             <dt>
+                @Html.DisplayNameFor(model => model.PhotoPath)
+            </dt>
+            <dd>
+                <img src="@Model.PhotoPath" height="128" width="128" />
+            </dd>
+            <dt>
                 @Html.DisplayNameFor(model => model.Description)
             </dt>
             <dd>
                 @Html.DisplayFor(model => model.Description)
-            </dd>
-            <dt>
-                @Html.DisplayNameFor(model => model.PhotoPath)
-            </dt>
-            <dd>
-                @Html.DisplayFor(model => model.PhotoPath)
             </dd>
         </dl>
     </div>
@@ -64,11 +64,14 @@
         <a asp-action="Edit" asp-route-id="@Model.ID">Edit</a> |
         <a asp-action="Index">Back to List</a>
     </div>
-    <input hidden value="@Model.ID" name="id" id="id">
-
-    <input hidden name="userName" id="userName" type="text" value="@User.Identity.Name">
     @if (User.Identity.IsAuthenticated)
     {
+        <button type="button" class="btn" id="pos-mark" onclick="updateRating(1)"></button>
+        <label id="rating"> @Model.Likes.Sum(x => x.Mark)</label>
+        <button type="button" class="btn" id="neg-mark" onclick="updateRating(-1)"></button>
+        <input hidden value="@Model.ID" name="id" id="id">
+        <input hidden name="userName" id="userName" type="text" value="@User.Identity.Name">
+        <input hidden name="typeModel" id="typeModel" type="text" value="@typeof(Artist).Name" />
         <p><h5>Leave your comment:</h5></p>
         <p><textarea style="width: 500px; height: 100px;" name="NewCommentary" id="NewCommentary"></textarea></p>
 
@@ -76,6 +79,50 @@
             <input type="submit" value="Leave a commentary" class="btn btn-default" id="sendButton" />
         </div>
     }
+    else
+    {
+        <label id="rating"> @Model.Likes.Sum(x => x.Mark)</label>
+    }
 </form>
+
+<script type="text/javascript">
+    updateRating = (mark) =>
+        $.ajax({
+            cache: false,
+            url: '@Url.Action("MarkArtist", "Artists")',
+            type: 'POST',
+            data: {
+                id: $('#id').val(),
+                mark: mark,
+                userName: $('#userName').val()
+
+            },
+            success: result => {
+                $('#rating').text(result.rating);
+                updateMark(result.mark);
+            }
+        })
+
+    updateMark = (mark) => {
+        var posMark = $('#pos-mark');
+        var negMark = $('#neg-mark');
+        posMark.css("background-color", "grey");
+        posMark.text('0');
+        negMark.css("background-color", "grey");
+        negMark.text('0');
+        if (mark > 0) {
+            posMark.text(mark);
+            posMark.css("background-color", "green");
+        }
+        if (mark < 0) {
+            negMark.text(mark);
+            negMark.css("background-color", "red");
+        }
+    }
+
+    $().ready(function () {
+        updateMark(@ViewBag.CurrentUserMark);
+    });
+</script>
 
 @Html.Partial("_Comments")

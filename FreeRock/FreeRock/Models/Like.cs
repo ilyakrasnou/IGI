@@ -13,6 +13,6 @@ namespace FreeRock.Models
         public virtual User User { get; set; }
 
         public virtual T LikeableObj { get; set; }
-        public byte Mark { get; set; }
+        public sbyte Mark { get; set; }
     }
 }

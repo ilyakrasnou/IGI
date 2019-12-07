@@ -75,10 +75,6 @@ namespace FreeRock.Data
 
             // Relations with Song
             modelBuilder.Entity<Song>()
-                .HasMany(x => x.Likes)
-                .WithOne(x => x.LikeableObj)
-                .OnDelete(DeleteBehavior.Cascade);
-            modelBuilder.Entity<Song>()
                 .HasIndex(x => x.Name);
             //modelBuilder.Entity<Song>()
             //    .Property(x => x.IsVerified)

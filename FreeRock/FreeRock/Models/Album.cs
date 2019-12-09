@@ -10,7 +10,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FreeRock.Models
 {
-    public class Album: ICommentable<Album>
+    public class Album : IValidatableObject, ICommentable<Album>
     {
         public int ID { get; set; }
         [Required]
@@ -26,10 +26,7 @@ namespace FreeRock.Models
             get => _realeseDate;
             set
             {
-                if (value == null || value < System.DateTime.UtcNow.Year + 10)
-                    _realeseDate = value;
-                else
-                    throw new FormatException();
+                _realeseDate = value;
             }
         }
         [Required]
@@ -49,6 +46,16 @@ namespace FreeRock.Models
         public string Description { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime CreatedDate { get; set; } = DateTime.Now;
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            List<ValidationResult> errors = new List<ValidationResult>();
+            if (_realeseDate == null || _realeseDate >= System.DateTime.UtcNow.Year + 10)
+            {
+                errors.Add(new ValidationResult("Realese Date invalid."));
+            }
+            return errors;
+        }
     }
 
     public class AlbumMin

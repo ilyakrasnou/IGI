@@ -1,29 +1,28 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
     ViewData["Title"] = "Index";
 }
 
-<h2>Index</h2>
-<div>
-    @await Component.InvokeAsync("NewAlbums")
-</div>
+<h2>@Localizer["Index"]</h2>
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create">@Localizer["Create"]</a>
 </p>
 <form asp-action="Index" method="get">
     <div class="form-actions no-color">
         <p>
-            Find by name: <input id="search-string" type="text" name="SearchString" value="" />
-            <select id="select-sort-by">
-                <option value="Title">названию</option>
-                <option value="CreatedDate" selected >новизне</option>
-                <option value="ReleaseDate">дате выпуска</option>
+            @Localizer["FindBy"] <input id="search-string" type="text" name="SearchString" value="" />
+            @Localizer["SortBy"] <select id="select-sort-by">
+                <option value="Title">@Localizer["ByTitle"]</option>
+                <option value="CreatedDate" selected>@Localizer["ByNovicy"]</option>
+                <option value="ReleaseDate">@Localizer["ByRealese"]</option>
             </select>
             <select id="select-sort-order">
-                <option value="asc" selected>by ascending</option>
-                <option value="desc">by descending</option>
+                <option value="asc" selected>@Localizer["ByAsc"]</option>
+                <option value="desc">@Localizer["ByDesc"]</option>
             </select>
-            <input type="button" value="Search" class="btn btn-default" onclick="updateContent()" /> |
-            <a asp-action="Index">Back to Full List</a>
+            <input type="button" value="@Localizer["Search"]" class="btn btn-default" onclick="updateContent()" /> |
+            <a asp-action="Index">@Localizer["BackAll"]</a>
         </p>
     </div>
 </form>

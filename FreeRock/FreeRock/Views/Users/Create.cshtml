@@ -1,18 +1,20 @@
-﻿@model FreeRock.ViewModels.CreateUserViewModel
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@model FreeRock.ViewModels.CreateUserViewModel
 @{
     ViewBag.Title = "Добавление пользователя";
 }
 <form asp-action="Create" asp-controller="Users">
     <div asp-validation-summary="All" class="text-danger"></div>
     <div class="form-group">
-        <label asp-for="Email" class="control-label">Email</label>
+        <label asp-for="Email" class="control-label">@Localizer["Email"]</label>
         <input type="text" asp-for="Email" class="form-control" />
     </div>
     <div class="form-group">
-        <label asp-for="Password" class="control-label">Пароль</label>
-        <input type="text" asp-for="Password" class="form-control" />
+        <label asp-for="Password" class="control-label">@Localizer["Password"]</label>
+        <input type="password" asp-for="Password" class="form-control" />
     </div>
     <div class="form-group">
-        <input type="submit" value="Добавить" class="btn btn-default" />
+        <input type="submit" value="@Localizer["Add"]" class="btn btn-default" />
     </div>
 </form>

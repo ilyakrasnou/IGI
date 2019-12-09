@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using FreeRock.Data;
 using FreeRock.Models;
 using Microsoft.AspNetCore.Authorization;
+using FreeRock.ViewModels;
+using System.IO;
 
 namespace FreeRock.Controllers
 {
@@ -63,15 +65,23 @@ namespace FreeRock.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Name,Description")] Artist artist)
+        public async Task<IActionResult> Create(ArtistViewModel artistvm)
         {
+            var artist = artistvm.Artist;
             if (ModelState.IsValid)
             {
                 _context.Add(artist);
                 await _context.SaveChangesAsync();
+                if (artistvm.PhotoImage != null)
+                {
+                    using (var stream = new FileStream($"wwwroot/photos/{artistvm.Artist.ID}.jpeg", FileMode.OpenOrCreate))
+                    {
+                        await artistvm.PhotoImage.CopyToAsync(stream);
+                    }
+                }
                 return RedirectToAction(nameof(Index));
             }
-            return View(artist);
+            return View(artistvm);
         }
 
         // GET: Artists/Edit/5
@@ -89,7 +99,8 @@ namespace FreeRock.Controllers
             {
                 return NotFound();
             }
-            return View(artist);
+            ArtistViewModel artistvm = new ArtistViewModel(artist); 
+            return View(artistvm);
         }
 
         // POST: Artists/Edit/5
@@ -98,8 +109,9 @@ namespace FreeRock.Controllers
         [HttpPost("Artists/Edit/{id:int:min(1)}")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles ="admin")]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,Description")] Artist artist)
+        public async Task<IActionResult> Edit(int id, ArtistViewModel artistvm)
         {
+            var artist = artistvm.Artist;
             if (id != artist.ID)
             {
                 return NotFound();
@@ -111,6 +123,13 @@ namespace FreeRock.Controllers
                 {
                     _context.Update(artist);
                     await _context.SaveChangesAsync();
+                    if (artistvm.PhotoImage != null)
+                    {
+                        using (var stream = new FileStream($"wwwroot/photos/{artistvm.Artist.ID}.jpeg", FileMode.OpenOrCreate))
+                        {
+                            await artistvm.PhotoImage.CopyToAsync(stream);
+                        }
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -125,7 +144,7 @@ namespace FreeRock.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(artist);
+            return View(artistvm);
         }
 
         // GET: Artists/Delete/5
@@ -184,6 +203,47 @@ namespace FreeRock.Controllers
             await _context.SaveChangesAsync();
             var rating = artist.Likes.Sum(x => x.Mark);
             return new { rating, mark };
+        }
+
+        public object GetArtistAlbums(int page, int perPage, int id)
+        {
+            //int id = int.Parse(artistID);
+            Artist artist = _context.Artists.FirstOrDefault(x => x.ID == id);
+            IEnumerable<Album> albums = artist.Albums;
+
+            if (!User.IsInRole("admin"))
+            {
+                albums = albums.Where(s => s.IsVerified);
+            }
+
+            albums = albums.OrderByDescending(x => x.ReleaseDate);
+
+            var count = albums.Count();
+            var lastPage = Math.Ceiling((double)count / perPage);
+            var data = albums.Skip((page - 1) * perPage).Take(perPage).Select(x => new AlbumMin(x));
+            return new { data, lastPage };
+        }
+
+        public object GetArtists(int page, int perPage, string searchString = null)
+        {
+            IQueryable<Artist> artists = _context.Artists.Include(x => x.Albums);
+
+            if (!User.IsInRole("admin"))
+            {
+                artists = artists.Where(x => x.Albums.Any(a => a.IsVerified));
+            }
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                artists = artists.Where(s => s.Name.Contains(searchString));
+            }
+
+            artists = artists.OrderBy(x => x.CreatedDate);
+
+            var count = artists.Count();
+            var lastPage = Math.Ceiling((double)count / perPage);
+            var data = artists.Skip((page - 1) * perPage).Take(perPage).Select(x => new ArtistMin(x));
+            return new { data, lastPage };
         }
 
         private bool ArtistExists(int id)

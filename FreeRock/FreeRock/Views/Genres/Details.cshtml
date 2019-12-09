@@ -1,23 +1,9 @@
-﻿@using Microsoft.AspNetCore.Mvc.Localization
-@inject IViewLocalizer Localizer
-@model IEnumerable<FreeRock.Models.Artist>
+﻿@model FreeRock.Models.Genre
 
-@{
-    ViewData["Title"] = "Index";
-}
+<h2>@Model.Name</h2>
 
-<h2>@Localizer["Index"]</h2>
-
-<form asp-action="Index" method="get">
-    <div class="form-actions no-color">
-        <p>
-            @Localizer["FindBy"] <input id="search-string" type="text" name="SearchString" value="" />
-            <input type="button" value="@Localizer["Search"]" class="btn btn-default" onclick="updateContent()" /> |
-            <a asp-action="Index">@Localizer["BackAll"]</a>
-        </p>
-    </div>
-</form>
 <div>
+    <input id="id-genre" type="hidden" asp-for="ID"/>
     <div class="container album-container" id="album-container">
     </div>
 
@@ -64,19 +50,21 @@
     updateContent = () =>
         $.ajax({
             cache: false,
-            url: '@Url.Action("GetArtists", "Artists")',
+            url: '@Url.Action("GetAlbumsByGenre", "Genres")',
             type: 'GET',
             data: {
                 page: pagination.currentPage,
                 perPage: pagination.perPage,
-                searchString: $("#search-string").val()
+                id: $('#id-genre').val()
             },
             success: result => {
                 pagination.lastPage = result.lastPage;
                 content = result.data.map(e =>
                     ({
-                        img: e.photoPath,
-                        title: e.name,
+                        img: e.coverPath,
+                        title: e.title,
+                        artistName: e.artistName,
+                        releaseDate: e.releaseDate,
                         createdDate: e.createdDate,
                         id: e.id
                     })
@@ -92,7 +80,7 @@
         content.forEach(e =>
             container.append(
                 `<div class="content">
-                    <a href="/Artists/${e.id}">
+                    <a href="/Albums/${e.id}">
                         <img src="${e.img}" width="100%"/>
                     </a>
                     <div>${e.title}</div>
@@ -122,32 +110,4 @@
         border-radius: 20px;
     }
 </style>
-<div id="genres" class="container tag-container">
 
-</div>
-<script type="text/javascript">
-    getGenres = () => {
-        $.ajax({
-            cache: false,
-            url: '@Url.Action("GetGenres", "Genres")',
-            type: 'GET',
-            data: { },
-            success: result => {
-                var cont = $("#genres")
-                result.forEach(e => {
-                    cont.append(`<a href="/Genres/${e.id}">${e.name}</a>  `);
-                });
-            }
-        })
-    }
-
-    $().ready(function () {
-        getGenres();
-    });
-</script>
-<style type="text/css">
-    div.tag-container {
-        display: flex;
-        flex-wrap: wrap;
-    }
-</style>

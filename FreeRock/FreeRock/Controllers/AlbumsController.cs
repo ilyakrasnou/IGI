@@ -101,7 +101,13 @@ namespace FreeRock.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(albumvm.Album);
+                var album = albumvm.Album;
+                album.AlbumGenres = new List<GenreAlbum>();
+                foreach (var g in albumvm.Genres)
+                {
+                    albumvm.Album.AlbumGenres.Add( new GenreAlbum { Album = album, Genre = g});
+                }
+                _context.Add(album);
                 await _context.SaveChangesAsync();
                 if (albumvm.CoverImage != null)
                 {
@@ -152,6 +158,10 @@ namespace FreeRock.Controllers
             {
                 try
                 {
+                    if (albumvm.Album.AlbumGenres is null)
+                    {
+                        albumvm.Album.AlbumGenres = new List<GenreAlbum>();
+                    }
                     HashSet<int> newID = new HashSet<int>();
                     IList<Song> newSongs = new List<Song>();
                     for (byte i = 0; i < albumvm.Album.Songs.Count; ++i)
@@ -164,11 +174,29 @@ namespace FreeRock.Controllers
                             newID.Add(s.ID);
                             _context.Update(s);
                         }
-                        // this is new song
                         else
                         {
+                            // this is new song
                             s.Album = albumvm.Album;
                             newSongs.Add(s);
+                        }
+                    }
+                    // work with genres
+                    HashSet<int> newGenreID = new HashSet<int>();
+                    IList<Genre> newGenres = new List<Genre>();
+                    for (byte i = 0; i < albumvm.Genres.Count; ++i)
+                    {
+                        var g = albumvm.Genres[i];
+                        // check if genre was in database and we don't need to add it
+                        if (g.ID != 0)
+                        {
+                            newGenreID.Add(g.ID);
+                        }
+                        else
+                        {
+                            // this is new genre
+                            albumvm.Album.AlbumGenres.Add(new GenreAlbum { Album = albumvm.Album, Genre = g });
+                            newGenres.Add(g);
                         }
                     }
                     _context.Update(albumvm.Album);
@@ -184,6 +212,34 @@ namespace FreeRock.Controllers
                     // add new songs 
                     foreach (var s in newSongs)
                         _context.Add(s);
+
+                    // remove old genres that are not in database after editing 
+                    {
+                        IEnumerable<Genre> oldGenres = _context.Genres
+                            .Where(g => g.GenreAlbums.Any(x => x.Album == albumvm.Album));
+                        foreach (var g in oldGenres)
+                        {
+                            if (!newGenreID.Contains(g.ID))
+                            {
+                                g.GenreAlbums.Remove(g.GenreAlbums.First(x => x.Album == albumvm.Album));
+                                if (g.GenreAlbums.Count == 0)
+                                {
+                                    _context.Remove(g);
+                                }
+                                else
+                                {
+                                    _context.Update(g);
+                                }
+
+                            }
+                                
+                        }
+                    }
+                    // add new genres 
+                    foreach (var g in newGenres)
+                        _context.Add(g);
+
+
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -249,7 +305,20 @@ namespace FreeRock.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var album = await _context.Albums.FindAsync(id);
+            var artist = album.Artist;
+            var genres = album.AlbumGenres.Select(x => x.Genre);
             _context.Albums.Remove(album);
+            if (artist.Albums.Count == 0)
+            {
+                _context.Artists.Remove(artist);
+            }
+            foreach (var g in genres)
+            {
+                if (g.GenreAlbums.Count == 0)
+                {
+                    _context.Genres.Remove(g);
+                }
+            }
             await _context.SaveChangesAsync();
             if (System.IO.File.Exists($"wwwroot/covers/{id}.jpg"))
             {

@@ -1,20 +1,6 @@
 ﻿@model Album
 
 <table>
-    <thead>
-        <tr>
-            <th>
-
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Songs[0].Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Songs[0].YouTubeUrl)
-            </th>
-            <th />
-        </tr>
-    </thead>
     <tbody id="tbody">
         <tr id="tr-0">
             <td>
@@ -24,16 +10,15 @@
                 }
             </td>
             <td>
-                <input type="text" name="Album.Songs[0].Name" value="@Model.Songs[0].Name" />
+                <input type="text" name="Album.Songs[0].Name" value="@Model.Songs[0].Name" autocomplete="off"/>
             </td>
             <td>
-                <input type="url" name="Album.Songs[0].YouTubeUrl" value="@Model.Songs[0].YouTubeUrl" />
+                <input type="url" name="Album.Songs[0].YouTubeUrl" value="@Model.Songs[0].YouTubeUrl" autocomplete="off"/>
             </td>
             <td>
-                <input type="button" value="Add" onclick="insertRow(0)" />
+                <input type="button" value="+" onclick="insertRow(0)" />
             </td>
             <td>
-                <input type="button" value="Delete" onclick="removeRow(0)" />
             </td>
         </tr>
         @for (byte i = 1; i < Model.Songs.Count; ++i)
@@ -49,10 +34,10 @@
                     <input type="url" name="Album.Songs[@i].YouTubeUrl" value="@Model.Songs[i].YouTubeUrl">
                 </td>
                 <td>
-                    <input type="button" value="Add" onclick="insertRow(@i)" />
+                    <input type="button" value="+" onclick="insertRow(@i)" />
                 </td>
                 <td>
-                    <input type="button" value="Delete" onclick="removeRow(@i)" />
+                    <input type="button" value="-" onclick="removeRow(@i)" />
                 </td>
             </tr>
         }
@@ -65,8 +50,11 @@
             $(this).find("input[type='hidden']").attr('name', `Album.Songs[${i}].ID`);
             $(this).find("input[type='text']").attr('name', `Album.Songs[${i}].Name`);
             $(this).find("input[type='url']").attr('name', `Album.Songs[${i}].YouTubeUrl`);
-            $(this).find("input[value='Add']").attr('onclick', `insertRow(${i})`);
-            $(this).find("input[value='Delete']").attr('onclick', `removeRow(${i})`);
+            $(this).find("input[value='+'][type='button']").attr('onclick', `insertRow(${i})`);
+            var removeButton = $(this).find("input[value='-'][type='button']");
+            if (removeButton != null) {
+                removeButton.attr('onclick', `removeRow(${i})`);
+            }
         })
     }
 
@@ -77,16 +65,16 @@
                  <td>
                  </td>
                  <td>
-                     <input type="text" data-val="true" data-val-required="The Name field is required.">
+                     <input type="text" data-val="true" data-val-required="The Name field is required." autocomplete="off">
                  </td>
                  <td>
-                     <input type="url"/>
+                     <input type="url" autocomplete="off"/>
                  </td>
                  <td>
-                     <input type="button" value="Add" />
+                     <input type="button" value="+" />
                  </td>
                  <td>
-                     <input type="button" value="Delete" />
+                     <input type="button" value="-" />
                  </td>
              </tr>
              `

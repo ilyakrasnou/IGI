@@ -1,12 +1,14 @@
-﻿@model FreeRock.ViewModels.ArtistViewModel
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@model FreeRock.ViewModels.ArtistViewModel
 
 @{
     ViewData["Title"] = "Edit";
 }
 
-<h2>Edit</h2>
+<h2>@Localizer["Edit"]</h2>
 
-<h4>Artist</h4>
+<h4>@Localizer["Artist"]</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -14,31 +16,32 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Artist.ID" />
             <div class="form-group">
-                <label asp-for="Artist.Name" class="control-label"></label>
+                <label class="control-label"><b>@Localizer["Name"]</b></label>
                 <input asp-for="Artist.Name" class="form-control" />
                 <span asp-validation-for="Artist.Name" class="text-danger"></span>
             </div>
             <div class="col-6 input-group">
+                <label class="control-label"><b>@Localizer["Photo"]</b></label>
                 <div class="custom-file">
                     <input type="file" class="custom-file-input" id="file" accept=".jpeg,.jpg" asp-for="PhotoImage">
-                    <label class="custom-file-label" asp-for="PhotoImage">Upload new picture</label>
+                    <label class="custom-file-label" asp-for="PhotoImage">@Localizer["UploadPhoto"]</label>
                     <span style="color: tomato" asp-validation-for="PhotoImage"></span>
                 </div>
             </div>
             <div class="form-group">
-                <label asp-for="Artist.Description" class="control-label"></label>
-                <textarea asp-for="Artist.Description" class="form-control" />
+                <label class="control-label"><b>@Localizer["Description"]</b></label>
+                <textarea asp-for="Artist.Description" class="form-control"></textarea>
                 <span asp-validation-for="Artist.Description" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-default" />
+                <input type="submit" value="@Localizer["Save"]" class="btn btn-default" />
             </div>
         </form>
     </div>
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index">@Localizer["BackAll"]</a>
 </div>
 
 @section Scripts {

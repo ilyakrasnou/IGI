@@ -1,0 +1,127 @@
+﻿@model FreeRock.ViewModels.AlbumViewModel
+
+<table>
+    <thead></thead>
+    <tbody id="tags-body">
+        <tr>
+            <td>
+                <input value="@Model.Genres[0].ID" type="hidden" />
+            </td>
+            <td>
+                <input value="@Model.Genres[0].Name" type="text" autocomplete="off">
+                <datalist ></datalist>
+            </td>
+            <td>
+                <input type="button" value="+" onclick="insertTagRow(0)" />
+            </td>
+            <td></td>
+        </tr>
+        @for (int i = 1; i < Model.Genres.Count; ++i)
+        {
+            <tr id="tags-tr-@i">
+                <td>
+                    <input value="@Model.Genres[i].ID" type="hidden" />
+                </td>
+                <td>
+                    <input value="@Model.Genres[i].Name" type="text" autocomplete="off">
+                    <datalist></datalist>
+                </td>
+                <td>
+                    <input type="button" value="+" onclick="insertTagRow(@i)" />
+                </td>
+                <td>
+                    <input type="button" value="-" onclick="removeTagRow(@i)" />
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script>
+    values = [];
+
+    selectId = (i) => {
+        var elem = $(`#input-id-${i}`);
+        var value = elem.val();
+        var idEl = values.find(x => x.name.toLowerCase() == value);
+        var hiddenElem = $(`#input-hidden-id-${i}`);
+        if (idEl === undefined) {
+            hiddenElem.removeAttr("name");
+            hiddenElem.val(0);
+        }
+        else {
+            hiddenElem.attr("name", `Genres[${i}].ID`)
+            hiddenElem.val(idEl.id.toString());
+        }
+    }
+
+    updateTagIndex = () => {
+        $('#tags-body > tr').each(function (i) {
+            $(this).attr('id', `tags-tr-${i}`);
+            
+            var datalist = $(this).find("datalist");
+            datalist.attr("id", `datalist-id-${i}`);
+            datalist.html('');
+            var cont = '';
+            values.forEach(v => cont += `<option id=${v.id} value=${v.name}>`);
+            datalist.html(cont);
+
+            var inputGenre = $(this).find("input[type='text']");
+            inputGenre.attr('id', `input-id-${i}`);
+            inputGenre.attr('name', `Genres[${i}].Name`);
+            inputGenre.attr('list', `datalist-id-${i}`);
+            inputGenre.attr('oninput', `selectId(${i})`);
+
+            var inputId = $(this).find("input[type='hidden']");
+            inputId.attr('id', `input-hidden-id-${i}`);
+            selectId(i);
+
+            $(this).find("input[value='+'][type='button']").attr('onclick', `insertTagRow(${i})`);
+            var removeButton = $(this).find("input[value='-'][type='button']");
+            if (removeButton != null) {
+                removeButton.attr('onclick', `removeTagRow(${i})`);
+            }
+        });
+    };
+
+    insertTagRow = (i) => {
+        $(`#tags-tr-${i}`).after(
+            `
+            <tr>
+                <td>
+                    <input type="hidden" value="0"/>
+                </td>
+                <td>
+                    <input type="text" autocomplete="off"/>
+                    <datalist></datalist>
+                </td>
+                <td>
+                    <input type="button" value="+"/>
+                </td>
+                <td>
+                    <input type="button" value="-"/>
+                </td>
+            </tr>
+            `
+        );
+        updateTagIndex();
+    };
+
+    removeTagRow = (i) => {
+        $(`#tags-tr-${i}`).remove();
+        updateTagIndex();
+    };
+
+    fetchDataList = () => 
+        $.ajax({
+            cache: false,
+            url: '@Url.Action("GetGenres", "Genres")',
+            type: 'GET',
+            data: {},
+            success: result => { values = result; updateTagIndex(); }
+        })
+
+    $(document).ready(() => {
+        fetchDataList();
+    });
+</script>
+

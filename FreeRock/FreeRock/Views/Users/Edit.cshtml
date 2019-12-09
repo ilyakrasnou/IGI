@@ -1,4 +1,6 @@
-﻿@model FreeRock.ViewModels.EditUserViewModel
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@model FreeRock.ViewModels.EditUserViewModel
 @{
     ViewBag.Title = "Редактирование пользователя";
 }
@@ -8,10 +10,10 @@
         <input type="hidden" asp-for="Id" />
     </div>
     <div class="form-group">
-        <label asp-for="Email" class="control-label">Email</label>
+        <label asp-for="Email" class="control-label">@Localizer["Email"]</label>
         <input type="text" asp-for="Email" class="form-control" />
     </div>
     <div class="form-group">
-        <input type="submit" value="Сохранить" class="btn btn-default" />
+        <input type="submit" value="@Localizer["Save"]" class="btn btn-default" />
     </div>
 </form>

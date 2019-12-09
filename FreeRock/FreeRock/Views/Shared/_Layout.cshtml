@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -15,16 +18,6 @@
               asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
         <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
     </environment>
-    <!--<script>
-        function() {
-            document.getElementById('back-to-top').classList.add("back-to-top-hide");
-            window.scrollTo({
-                top: 0,
-                left: 0,
-                behavior: 'smooth'
-            });
-        }
-    </script>-->
 </head>
 <body>
     <nav class="navbar navbar-inverse navbar-fixed-top">
@@ -40,13 +33,13 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
-                    <li><a asp-area="" asp-controller="Artists" asp-action="Index">Artists</a></li>
-                    <li><a asp-area="" asp-controller="Albums" asp-action="Index">Albums</a></li>
-                    <li><a asp-area="" asp-controller="Songs" asp-action="Index">Songs</a></li>
-                    <li><a asp-area="" asp-controller="Home" asp-action="About">About</a></li>
-                    <li><a asp-area="" asp-controller="Home" asp-action="Contact">Contact</a></li>
+                    <li><a asp-area="" asp-controller="Home" asp-action="Index">@Localizer["Home"]</a></li>
+                    <li><a asp-area="" asp-controller="Artists" asp-action="Index">@Localizer["Artists"]</a></li>
+                    <li><a asp-area="" asp-controller="Albums" asp-action="Index">@Localizer["Albums"]</a></li>
+                    <li><a asp-area="" asp-controller="Home" asp-action="About">@Localizer["About"]</a></li>
+                    <li><a asp-area="" asp-controller="Home" asp-action="Contact">@Localizer["Contact"]</a></li>
                 </ul>
+                <partial name="_Localization" />
                 <partial name="_LoginPartial" />
             </div>
         </div>

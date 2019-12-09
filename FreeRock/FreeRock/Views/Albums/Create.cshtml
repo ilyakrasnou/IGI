@@ -1,71 +1,121 @@
-﻿@model FreeRock.ViewModels.AlbumViewModel
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+@model FreeRock.ViewModels.AlbumViewModel
 
 @{
     ViewData["Title"] = "CreateAlbum";
 }
 
-<h2>Create</h2>
+<h2>@Localizer["Create"]</h2>
 
-<h4>Album</h4>
+<h4>@Localizer["Album"]</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="Album.Title" class="control-label"></label>
+                <label class="control-label"><b>@Localizer["Title"]</b></label>
                 <input asp-for="Album.Title" class="form-control" />
                 <span asp-validation-for="Album.Title" class="text-danger"></span>
             </div>
+            <hr />
             <div class="form-group row">
-                <div class="col-6">
-                    <img src="@Model.Album.CoverPath"
-                         alt="@Model.Album.Title"
-                         onerror="this.onerror=null;this.src='/covers/default.jpg';"
-                         height="128" width="128">
-                </div>
+                <label class="control-label"><b>@Localizer["Cover"]</b></label>
                 <div class="col-6 input-group">
                     <div class="custom-file">
                         <input type="file" class="custom-file-input" id="file" accept=".jpeg,.jpg" asp-for="CoverImage">
-                        <label class="custom-file-label" asp-for="CoverImage">Upload new picture</label>
+                        <label class="custom-file-label" asp-for="CoverImage">@Localizer["UploadCover"]</label>
                         <span style="color: tomato" asp-validation-for="CoverImage"></span>
                     </div>
                 </div>
             </div>
-            <div class="form-group">
-                <label asp-for="Album.Artist" class="control-label"></label>
-                <select asp-for="Album.ArtistID" class="form-control" asp-items="ViewBag.ArtistID">
-                    <option value="">-- Select Artist --</option>
-                </select>
-                <span asp-validation-for="Album.ArtistID" class="text-danger" />
+            <hr />
+            <div>
+                <label class="control-label"><b>@Localizer["Artist"]</b></label>
+                <div id="select-artist">
+                    <label class="control-label">@Localizer["SelectArtist"]</label>
+                    <select asp-for="Album.ArtistID" class="form-control" asp-items="ViewBag.ArtistID">
+                        <option value="">@Localizer["SelectItem"]</option>
+                    </select>
+                    <span asp-validation-for="Album.ArtistID" class="text-danger" />
+                </div>
+                <div id="create-artist" hidden>
+                    <label class="control-label"><b>@Localizer["CreateArtist"]</b></label>
+                    <div class="form-group">
+                        <label class="control-label"><b>@Localizer["Name"]</b></label>
+                        <input asp-for="Album.Artist.Name" class="form-control" value="" />
+                        <span asp-validation-for="Album.Artist.Name" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label"><b>@Localizer["Description"]</b></label>
+                        <input asp-for="Album.Artist.Description" value="" class="form-control" />
+                        <span asp-validation-for="Album.Artist.Description" class="text-danger"></span>
+                    </div>
+                    <label class="control-label"><b>@Localizer["Photo"]</b></label>
+                    <div class="col-6 input-group">
+
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="file" accept=".jpeg,.jpg" asp-for="PhotoImage">
+                            <label class="custom-file-label" asp-for="PhotoImage">@Localizer["UploadPhoto"]</label>
+                            <span asp-validation-for="PhotoImage" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <input id="change-mode" type="button" value="@Localizer["OrSelect"]" onclick="changeMode()" />
+                </div>
+                <script type="text/javascript">
+                    changeMode = () => {
+                        var btnChange = $('#change-mode')
+                        var currMode = btnChange.val();
+                        var createArtist = $('#create-artist');
+                        var selectArtist = $('#select-artist');
+                        if (currMode == "@Localizer["OrCreate"]") {
+                            createArtist.attr("hidden", false);
+                            selectArtist.attr("hidden", true);
+                            btnChange.val("@Localizer["OrSelect"]");
+                        } else if (currMode == "@Localizer["OrSelect"]") {
+                            selectArtist.attr("hidden", false);
+                            createArtist.attr("hidden", true);
+                            btnChange.val("@Localizer["OrCreate"]");
+                        }
+                    }
+
+                    submitArtist = () => {
+                        var btnChange = $('#change-mode')
+                        var currMode = btnChange.val();
+                        var createArtist = $('#create-artist');
+                        var selectArtist = $('#select-artist');
+                        if (currMode == "@Localizer["OrCreate"]") {
+                            createArtist.empty();
+                        } else if (currMode == "@Localizer["OrSelect"]") {
+                            selectArtist.empty();
+                        }
+                    }
+                </script>
             </div>
+            <hr />
             <div class="form-group">
-                <label asp-for="Album.ReleaseDate" class="control-label"></label>
+                <label class="control-label"><b>@Localizer["RealeseDate"]</b></label>
                 <input asp-for="Album.ReleaseDate" class="form-control" />
                 <span asp-validation-for="Album.ReleaseDate" class="text-danger"></span>
             </div>
+            <hr />
             <div class="form-group">
-                <label asp-for="Album.Description" class="control-label"></label>
-                <input asp-for="Album.Description" class="form-control" />
+                <label class="control-label"><b>@Localizer["Description"]</b></label>
+                <textarea asp-for="Album.Description" class="form-control"></textarea>
                 <span asp-validation-for="Album.Description" class="text-danger"></span>
             </div>
-            @await  Component.InvokeAsync("EditSongs", Model.Album)
-            <table>
-                <thead></thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            <input type="number" hidden/>
-                        </td>
-                        <td>
-                            <input id="input-id" type="text" list="datalist-id">
-                            <datalist id="datalist-id"></datalist>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <hr />
+            <label class="control-label"><b>@Localizer["Songs"]</b></label>
+            @await Component.InvokeAsync("EditSongs", Model.Album)
+            <hr />
+            <label class="control-label"><b>@Localizer["Genres"]</b></label>
+            @await Component.InvokeAsync("EditGenres", Model)
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-default" />
+                <input type="submit" value="@Localizer["Create"]" class="btn btn-default" onclick="submitArtist()" />
             </div>
         </form>
     </div>

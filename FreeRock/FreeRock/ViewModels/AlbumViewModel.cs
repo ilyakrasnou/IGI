@@ -15,7 +15,7 @@ namespace FreeRock.ViewModels
         public IFormFile CoverImage { get; set; }
         public IFormFile PhotoImage { get; set; }
         public int Mark { get; private set; }
-        public IEnumerable<Genre> Genres { get; set; }
+        public IList<Genre> Genres { get; set; }
 
 
         public AlbumViewModel()
@@ -23,7 +23,7 @@ namespace FreeRock.ViewModels
             Album = new Album();
             CoverImage = null;
             PhotoImage = null;
-            Genres = new List<Genre>();
+            Genres = new List<Genre> { new Genre() };
         }
 
         public AlbumViewModel(Album album)
@@ -32,6 +32,10 @@ namespace FreeRock.ViewModels
             CoverImage = null;
             PhotoImage = null;
             Genres = album.AlbumGenres.Select(x => x.Genre).ToList();
+            if (Genres.Count == 0)
+            {
+                Genres.Add(new Genre());
+            }
         }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -57,6 +61,31 @@ namespace FreeRock.ViewModels
                 if (PhotoImage.ContentType != "image/jpeg")
                 {
                     errors.Add(new ValidationResult("Not .jpeg or .jpg file."));
+                }
+            }
+            foreach (var s in Album.Songs)
+            {
+                if (string.IsNullOrWhiteSpace(s.Name))
+                {
+                    errors.Add(new ValidationResult("Song name can't be empty"));
+                }
+            }
+            HashSet<string> genreNames = new HashSet<string>();
+            foreach (var g in Genres)
+            {
+                g.Name = g.Name.ToLower().Trim();
+                var gName = g.Name;
+                if (string.IsNullOrWhiteSpace(gName))
+                {
+                    errors.Add(new ValidationResult("Genre can't be empty"));
+                }
+                else if (genreNames.Contains(gName))
+                {
+                    errors.Add(new ValidationResult("Genre must be unique"));
+                }
+                else
+                {
+                    genreNames.Add(gName);
                 }
             }
             return errors;

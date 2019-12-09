@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FreeRock.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20191206193454_MyMigration")]
-    partial class MyMigration
+    [Migration("20191207155158_MyMigr")]
+    partial class MyMigr
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -129,6 +129,9 @@ namespace FreeRock.Migrations
                         .IsRequired();
 
                     b.HasKey("ID");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("Genre");
                 });

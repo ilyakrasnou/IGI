@@ -1,22 +1,24 @@
-﻿@model IEnumerable<FreeRock.Models.User>
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@model IEnumerable<FreeRock.Models.User>
 @{
     ViewBag.Title = "Список пользователей";
 }
 
-<a asp-action="Create">Добавить пользователя</a>
+<a asp-action="Create">@Localizer["Create"]</a>
 
 <table class="table">
-    <tr><th>Email</th><th></th></tr>
+    <tr><th>@Localizer["Email"]</th><th></th></tr>
     @foreach (var user in Model)
     {
         <tr>
             <td>@user.Email</td>
             <td>
                 <form asp-action="Delete" asp-route-id="@user.Id" method="post">
-                    <a class="btn btn-sm btn-primary" asp-action="Edit" asp-route-id="@user.Id">Изменить</a>
-                    <a class="btn btn-sm btn-primary" asp-action="ChangePassword" asp-route-id="@user.Id">Сменить пароль</a>
+                    <a class="btn btn-sm btn-primary" asp-action="Edit" asp-route-id="@user.Id">@Localizer["Edit"]</a>
+                    <a class="btn btn-sm btn-primary" asp-action="ChangePassword" asp-route-id="@user.Id">@Localizer["ChangePassword"]</a>
                     <button type="submit" class="btn btn-sm btn-danger">
-                        Удалить
+                        @Localizer["Delete"]
                     </button>
                 </form>
             </td>

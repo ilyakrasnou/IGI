@@ -1,87 +1,209 @@
-﻿@model FreeRock.Models.Artist
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@model FreeRock.Models.Artist
 
 @{
     ViewData["Title"] = "Details";
 }
 
-<h2>Details</h2>
+<h2>@Localizer["Details"]</h2>
 
 <form asp-action="Details">
     <div>
-        <h4>Artist</h4>
+        <h4>@Localizer["Artist"]</h4>
         <hr />
+        <input id="idArtist" type="hidden" asp-for="ID" />
         <dl class="dl-horizontal">
             <dt>
-                @Html.DisplayNameFor(model => model.Name)
+                <label class="control-label"><b>@Localizer["Name"]</b></label>
             </dt>
             <dd>
                 @Html.DisplayFor(model => model.Name)
             </dd>
             <dt>
-                @Html.DisplayNameFor(model => model.PhotoPath)
+                <label class="control-label"><b>@Localizer["Photo"]</b></label>
             </dt>
             <dd>
                 <img src="@Model.PhotoPath" height="128" width="128" />
             </dd>
             <dt>
-                @Html.DisplayNameFor(model => model.Description)
+                <label class="control-label"><b>@Localizer["Description"]</b></label>
             </dt>
             <dd>
-                @Html.DisplayFor(model => model.Description)
+                <markdown content="@Model.Description"/>
             </dd>
         </dl>
     </div>
-    <table class="table">
-        <tbody>
-            @foreach (var album in Model.Albums.Where(a => a.IsVerified))
-            {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => album.Title)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => album.ReleaseDate)
-                    </td>
-                    @if (User.IsInRole("admin"))
-                    {
-                        <td>
-                            <a asp-controller="Albums" asp-action="Edit" asp-route-id="@album.ID">Edit</a> |
-                            <a asp-controller="Albums" asp-action="Details" asp-route-id="@album.ID">Details</a> |
-                            <a asp-controller="Albums" asp-action="Delete" asp-route-id="@album.ID">Delete</a>
-                        </td>
-                    }
-                    else
-                    {
-                        <td>
-                            <a asp-controller="Albums" asp-action="Details" asp-route-id="@album.ID">Details</a>
-                        </td>
-                    }
-                </tr>
-            }
-        </tbody>
-    </table>
+    <label class="control-label"><b>@Localizer["Albums"]</b></label>
     <div>
-        <a asp-action="Edit" asp-route-id="@Model.ID">Edit</a> |
-        <a asp-action="Index">Back to List</a>
+        <div class="container album-container" id="album-container">
+        </div>
+
+        <div class="pagination" id="pagination">
+            <button id="prev-page-btn" onClick="changePage(-1)" disabled>
+                <<
+            </button>
+            <button id="next-page-btn" onClick="changePage(1)" disabled>
+                >>
+            </button>
+        </div>
+
     </div>
+
+    <script type="text/javascript">
+
+        const pagination = {
+            currentPage: 1,
+            lastPage: 1,
+            perPage: 2
+        };
+
+        let content = [];
+
+        checkDisable = () => {
+            $("#prev-page-btn").attr("disabled", false);
+            $("#next-page-btn").attr("disabled", false);
+            if (pagination.currentPage == 1) {
+                $("#prev-page-btn").attr("disabled", true);
+            }
+            if (pagination.currentPage == pagination.lastPage) {
+                $("#next-page-btn").attr("disabled", true);
+            }
+        };
+
+        changePage = (x) => {
+            const newPage = pagination.currentPage + x;
+            if (newPage > 0 && newPage <= pagination.lastPage) {
+                pagination.currentPage = newPage;
+            }
+            updateContent();
+        };
+
+        updateContent = () =>
+            $.ajax({
+                cache: false,
+                url: '@Url.Action("GetArtistAlbums", "Artists")',
+                type: 'GET',
+                data: {
+                    page: pagination.currentPage,
+                    perPage: pagination.perPage,
+                    id: $("#idArtist").val()
+                },
+                success: result => {
+                    pagination.lastPage = result.lastPage;
+                    content = result.data.map(e =>
+                        ({
+                            img: e.coverPath,
+                            title: e.title,
+                            createdDate: e.createdDate,
+                            id: e.id
+                        })
+                    );
+                    updateFlex();
+                    checkDisable();
+                }
+            })
+
+        updateFlex = () => {
+            const container = $("#album-container");
+            container.empty();
+            content.forEach(e =>
+                container.append(
+                    `<div class="content">
+                        <a href="/Artists/${e.id}">
+                            <img src="${e.img}" width="100%"/>
+                        </a>
+                        <div>${e.title}</div>
+                    </div>`
+                ));
+        };
+
+        $().ready(function () {
+            updateContent();
+            updateFlex();
+        });
+
+    </script>
+    <style type="text/css">
+
+        div.album-container {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        div.content {
+            width: 20%;
+            padding: 10px;
+            margin: 2px;
+            border: 1px solid #EEEEEE;
+            border-radius: 20px;
+        }
+    </style>
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model.ID">@Localizer["Edit"]</a> |
+        <a asp-action="Index">@Localizer["BackAll"]</a>
+    </div>
+    <hr/>
     @if (User.Identity.IsAuthenticated)
     {
-        <button type="button" class="btn" id="pos-mark" onclick="updateRating(1)"></button>
-        <label id="rating"> @Model.Likes.Sum(x => x.Mark)</label>
-        <button type="button" class="btn" id="neg-mark" onclick="updateRating(-1)"></button>
+        <table>
+            <thead>
+                <tr>
+                    <th>
+                        <label class="control-label"><b>@Localizer["PosMark"]</b></label>
+                    </th>
+                    <th>
+                        <label class="control-label"><b>@Localizer["Rating"]</b></label>
+                    </th>
+                    <th>
+                        <label class="control-label"><b>@Localizer["NegMark"]</b></label>
+                    </th>
+                </tr>
+            </thead>
+            <tbody style="align-content">
+                <tr>
+                    <td>
+                        <button type="button" class="btn" id="pos-mark" onclick="updateRating(1)"></button>
+                    </td>
+                    <td>
+                        <label id="rating"> @Model.Likes.Sum(x => x.Mark)</label>
+                    </td>
+                    <td>
+                        <button type="button" class="btn" id="neg-mark" onclick="updateRating(-1)"></button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <hr/>
+        <label class="control-label"><b>@Localizer["NewComment"]</b></label>
         <input hidden value="@Model.ID" name="id" id="id">
         <input hidden name="userName" id="userName" type="text" value="@User.Identity.Name">
         <input hidden name="typeModel" id="typeModel" type="text" value="@typeof(Artist).Name" />
-        <p><h5>Leave your comment:</h5></p>
+        <p><h5>@Localizer["LeaveComment"]</h5></p>
         <p><textarea style="width: 500px; height: 100px;" name="NewCommentary" id="NewCommentary"></textarea></p>
 
         <div class="form-group">
-            <input type="submit" value="Leave a commentary" class="btn btn-default" id="sendButton" />
+            <input type="submit" value="@Localizer["Leave"]" class="btn btn-default" id="sendButton" />
         </div>
     }
     else
     {
-        <label id="rating"> @Model.Likes.Sum(x => x.Mark)</label>
+        <table>
+            <thead>
+                <tr>
+                    <th>
+                        <label class="control-label"><b>@Localizer["Rating"]</b></label>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <label id="rating"> @Model.Likes.Sum(x => x.Mark)</label>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     }
 </form>
 

@@ -374,7 +374,8 @@ namespace FreeRock.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Artist_Name",
                 table: "Artist",
-                column: "Name");
+                column: "Name",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -434,6 +435,12 @@ namespace FreeRock.Migrations
                 name: "IX_Comment<Artist>_CommentableObjID",
                 table: "Comment<Artist>",
                 column: "CommentableObjID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Genre_Name",
+                table: "Genre",
+                column: "Name",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_GenreAlbum_AlbumID",

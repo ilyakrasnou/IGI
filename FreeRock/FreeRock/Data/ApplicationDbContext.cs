@@ -23,36 +23,6 @@ namespace FreeRock.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            
-            modelBuilder.Entity<GenreAlbum>()
-                .HasKey(s => new { s.GenreID, s.AlbumID });
-            modelBuilder.Entity<GenreAlbum>()
-                .HasOne(x => x.Album)
-                .WithMany(x => x.AlbumGenres)
-                .OnDelete(DeleteBehavior.Cascade);
-            modelBuilder.Entity<GenreAlbum>()
-                .HasOne(x => x.Genre)
-                .WithMany(x => x.GenreAlbums)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // Relations with Albums
-            modelBuilder.Entity<Album>()
-                .HasMany(x => x.Songs)
-                .WithOne(x => x.Album)
-                .OnDelete(DeleteBehavior.Cascade);
-            modelBuilder.Entity<Album>()
-                .HasMany(a => a.Comments)
-                .WithOne(x => x.CommentableObj)
-                .OnDelete(DeleteBehavior.Cascade);
-            modelBuilder.Entity<Album>()
-                .HasMany(a => a.Likes)
-                .WithOne(x => x.LikeableObj)
-                .OnDelete(DeleteBehavior.Cascade);
-            modelBuilder.Entity<Album>()
-                .HasIndex(x => x.Title);
-            modelBuilder.Entity<Album>()
-                .Property(x => x.IsVerified)
-                .HasDefaultValue(false);
 
             // Relations with Artist
             modelBuilder.Entity<Artist>()
@@ -73,6 +43,40 @@ namespace FreeRock.Data
             //    .Property(x => x.IsVerified)
             //    .HasDefaultValue(false);
 
+            modelBuilder.Entity<GenreAlbum>()
+                .HasKey(s => new { s.GenreID, s.AlbumID });
+            modelBuilder.Entity<GenreAlbum>()
+                .HasOne(x => x.Album)
+                .WithMany(x => x.AlbumGenres)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<GenreAlbum>()
+                .HasOne(x => x.Genre)
+                .WithMany(x => x.GenreAlbums)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Genre>()
+                .HasIndex(x => x.Name)
+                .IsUnique();
+            
+            // Relations with Albums
+            modelBuilder.Entity<Album>()
+                .HasMany(x => x.Songs)
+                .WithOne(x => x.Album)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Album>()
+                .HasMany(a => a.Comments)
+                .WithOne(x => x.CommentableObj)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Album>()
+                .HasMany(a => a.Likes)
+                .WithOne(x => x.LikeableObj)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Album>()
+                .HasIndex(x => x.Title);
+            modelBuilder.Entity<Album>()
+                .Property(x => x.IsVerified)
+                .HasDefaultValue(false);
+            
             // Relations with Song
             modelBuilder.Entity<Song>()
                 .HasIndex(x => x.Name);
@@ -80,8 +84,8 @@ namespace FreeRock.Data
             //    .Property(x => x.IsVerified)
             //    .HasDefaultValue(false);
 
-            modelBuilder.Entity<Album>().ToTable("Album");
             modelBuilder.Entity<Artist>().ToTable("Artist");
+            modelBuilder.Entity<Album>().ToTable("Album");
             modelBuilder.Entity<Song>().ToTable("Song");
             modelBuilder.Entity<Genre>().ToTable("Genre");
         }

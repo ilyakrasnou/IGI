@@ -18,6 +18,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Remove="Resources\Controllers.HomeController.be.resx" />
+    <EmbeddedResource Remove="Resources\Controllers.HomeController.resx" />
+    <EmbeddedResource Remove="Resources\Controllers.HomeController.ru.resx" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Markdig" Version="0.18.0" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
@@ -27,6 +33,12 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\photos\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Resources\Controllers.HomeController.be.resx" />
+    <None Include="Resources\Controllers.HomeController.ru.resx" />
+    <None Include="Resources\Controllers.HomeController.resx" />
   </ItemGroup>
 
 </Project>
